@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 import '../enums/api_request_type_enum.dart';
 import '../enums/api_response_status_enum.dart';
 import '../helpers/environment_helper.dart';
+import '../helpers/session_helper.dart';
 import '../shared/domain/entities/api_response.dart';
 
 part 'api_request.dart';
@@ -55,9 +56,14 @@ class ApiService {
           : null,
     );
 
+    final String? sessionToken = SessionHelper.instance.isAuthenticated
+        ? SessionHelper.instance.token
+        : null;
+
     final Map<String, String> resolvedHeaders = {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
+      if (sessionToken != null) 'Authorization': 'Bearer $sessionToken',
       ...?request.headers,
     };
 

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/helpers/session_helper.dart';
 import '../../../../core/errors/timeout_failure.dart';
 import '../../../../core/shared/domain/entities/user_login_data.dart';
 import '../../domain/repositories/login_repository.dart';
@@ -53,6 +54,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         if (data.error != null) {
           emit(LoginErrorState(message: 'Usuário ou senha inválidos.'));
         } else {
+          SessionHelper.instance.initUserLoginData(userLoginData: data);
           emit(LoginSuccessState(user: data));
         }
       },
