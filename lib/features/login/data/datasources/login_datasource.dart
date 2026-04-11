@@ -4,8 +4,6 @@ import 'package:dartz/dartz.dart';
 
 import '../../../../core/enums/api_response_status_enum.dart';
 import '../../../../core/errors/errors_export.dart';
-import '../../../../core/helpers/environment_helper.dart';
-import '../../../../core/helpers/mock_helper.dart';
 import '../../../../core/services/api_service.dart';
 import '../../../../core/services/apis/api_endpoints.dart';
 import '../../../../core/shared/domain/entities/api_response.dart';
@@ -20,16 +18,11 @@ import '../models/user_login_data_model.dart';
 /// - Recebe [ApiService] como dependência injetável no construtor
 /// - Cada método: seleciona o endpoint no enum → chama _apiService (ou mock) →
 ///   trata [ApiResponseStatus] → mapeia com o model
-///
-/// O controle entre mock e API real é feito via [EnvironmentHelper.instance.useMock],
-/// configurado no arquivo `.env` (USE_MOCK=true|false).
-/// Os dados mockados estão centralizados em [MockHelper].
 class LoginDatasource extends LoginRepository {
   final ApiService _apiService;
 
-  LoginDatasource({
-    ApiService? apiService,
-  }) : _apiService = apiService ?? ApiService();
+  LoginDatasource({ApiService? apiService})
+    : _apiService = apiService ?? ApiService();
 
   @override
   Future<Either<Failure?, UserLoginData>> login({
@@ -38,20 +31,15 @@ class LoginDatasource extends LoginRepository {
   }) async {
     final ApiEndpoints endpoint = ApiEndpoints.postLogin;
 
-    final ApiResponse apiResponse = EnvironmentHelper.instance.useMock
-        ? await MockHelper.instance.call(
-            endpoint: endpoint.url,
-            body: {'email': email, 'password': password},
-          )
-        : await _apiService(
-            endpoint: endpoint.url,
-            request: ApiRequest(
-              requestType: endpoint.requestType,
-              body: {'email': email, 'password': password},
-            ),
-            devLog: 'LoginDatasource: login',
-            currentStackTrace: StackTrace.current,
-          );
+    final ApiResponse apiResponse = await _apiService(
+      endpoint: endpoint.url,
+      request: ApiRequest(
+        requestType: endpoint.requestType,
+        body: {'email': email, 'password': password},
+      ),
+      devLog: 'LoginDatasource: login',
+      currentStackTrace: StackTrace.current,
+    );
 
     if (apiResponse.status == ApiResponseStatus.success) {
       try {
@@ -61,10 +49,14 @@ class LoginDatasource extends LoginRepository {
         return Future.value(Right(result));
       } catch (error) {
         log('Error: ${error.toString()}', name: 'LoginDatasource: login');
+
+        /// TODO: Implementar gravação de log de erro no Crashlytics ou simular
         return Future.value(const Left(null));
       }
     } else if (apiResponse.status == ApiResponseStatus.errorTimeout) {
       return Future.value(Left(TimeoutFailure()));
+    } else if (apiResponse.status == ApiResponseStatus.errorSessionExpired) {
+      return Future.value(Left(SessionExpiredFailure()));
     }
 
     return Future.value(const Left(null));

@@ -6,4 +6,5 @@ enum ApiResponseStatus {
   errorTimeout,
   errorJsonDecode,
   errorStatusCode,
+  errorSessionExpired,
 }

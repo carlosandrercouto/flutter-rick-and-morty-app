@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 import '../enums/api_request_type_enum.dart';
 import '../enums/api_response_status_enum.dart';
 import '../helpers/environment_helper.dart';
+import '../helpers/mock_helper.dart';
 import '../helpers/session_helper.dart';
 import '../shared/domain/entities/api_response.dart';
 
@@ -22,10 +23,10 @@ part 'api_request.dart';
 /// `core/services/apis/api_endpoints.dart`.
 class ApiService {
   final http.Client _httpClient;
-  final String _baseUrl;
+  final EnvironmentHelper _envHelper;
 
-  ApiService({String? baseUrl, http.Client? httpClient})
-    : _baseUrl = baseUrl ?? EnvironmentHelper.instance.apiBaseUrl,
+  ApiService({EnvironmentHelper? envHelper, http.Client? httpClient})
+    : _envHelper = envHelper ?? EnvironmentHelper.instance,
       _httpClient = httpClient ?? http.Client();
 
   static ApiService get instance => ApiService();
@@ -48,7 +49,16 @@ class ApiService {
     required StackTrace currentStackTrace,
     int apiRequestTimeout = 30,
   }) async {
-    final url = Uri.parse('$_baseUrl$endpoint').replace(
+    if (_envHelper.useMock) {
+      return MockHelper.instance.call(
+        endpoint: endpoint,
+        body: request.body is Map<String, dynamic>
+            ? request.body as Map<String, dynamic>
+            : {},
+      );
+    }
+
+    final url = Uri.parse('${_envHelper.apiBaseUrl}$endpoint').replace(
       queryParameters: request.params?.isNotEmpty == true
           ? request.params
           : null,
@@ -82,8 +92,17 @@ class ApiService {
       if (response.statusCode == 200 || response.statusCode == 201) {
         dev.log('Success', name: devLog);
         return ApiResponse(status: ApiResponseStatus.success, result: result);
+      } else if (response.statusCode == 401) {
+        dev.log('Error [${response.statusCode}]: $result', name: devLog);
+
+        return ApiResponse(
+          status: ApiResponseStatus.errorSessionExpired,
+          result: result,
+        );
       } else {
         dev.log('Error [${response.statusCode}]: $result', name: devLog);
+
+        /// TODO: Implementar gravação de log de erro no Crashlytics ou simular
         return ApiResponse(
           status: ApiResponseStatus.errorStatusCode,
           result: result,
@@ -97,9 +116,13 @@ class ApiService {
       return ApiResponse(status: ApiResponseStatus.errorTimeout);
     } on FormatException {
       dev.log('FormatException (bad JSON)', name: devLog);
+
+      /// TODO: Implementar gravação de log de erro no Crashlytics ou simular
       return ApiResponse(status: ApiResponseStatus.errorJsonDecode);
     } catch (e) {
       dev.log('Unknown error: $e', name: devLog);
+
+      /// TODO: Implementar gravação de log de erro no Crashlytics ou simular
       return ApiResponse(status: ApiResponseStatus.errorGeneric);
     }
   }
