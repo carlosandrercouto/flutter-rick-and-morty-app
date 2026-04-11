@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 import 'core/helpers/environment_helper.dart';
-import 'features/login/data/datasources/login_datasource.dart';
-import 'features/login/presentation/bloc/login_bloc.dart';
-import 'features/login/presentation/ui/screens/login_screen.dart';
+import 'core/routes/routes.dart';
+import 'core/routes/routes_list.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,12 +33,8 @@ class FlutterTemplateApp extends StatelessWidget {
           brightness: Brightness.dark,
         ),
       ),
-      home: BlocProvider(
-        create: (_) => LoginBloc(
-          loginRepository: LoginDatasource(),
-        ),
-        child: const LoginScreen(),
-      ),
+      initialRoute: RoutesList.LoginScreen.routeName,
+      onGenerateRoute: getRoute,
     );
   }
 }

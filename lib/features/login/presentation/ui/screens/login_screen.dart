@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../bloc/login_bloc.dart';
-import '../../../../home/presentation/ui/screens/home_screen.dart';
+import '../../../../../core/routes/routes_list.dart';
 
 /// Tela de Login do aplicativo.
 ///
@@ -55,9 +55,7 @@ class _LoginScreenState extends State<LoginScreen> {
       _showLoading();
     } else if (state is LoginSuccessState) {
       _dismissLoading();
-      Navigator.of(
-        context,
-      ).pushReplacement(MaterialPageRoute(builder: (_) => const HomeScreen()));
+      Navigator.of(context).pushReplacementNamed(RoutesList.HomeScreen.routeName);
     } else if (state is LoginErrorState) {
       _dismissLoading();
       _showSnackbar(context, state.message);
