@@ -1,5 +1,5 @@
 name: flutter_template
-description: "A new Flutter project."
+description: "A Flutter template project with Clean Architecture, BLoC, and mocked datasources."
 publish_to: 'none'
 version: 0.1.0+1
 
@@ -9,6 +9,16 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+
+  # State Management
+  flutter_bloc: ^9.1.1
+  equatable: ^2.0.7
+
+  # Functional Programming
+  dartz: ^0.10.1
+
+  # HTTP
+  http: ^1.4.0
 
 dev_dependencies:
   flutter_test:
