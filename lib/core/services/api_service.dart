@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 
 import '../enums/api_request_type_enum.dart';
 import '../enums/api_response_status_enum.dart';
+import '../helpers/environment_helper.dart';
 import '../shared/domain/entities/api_response.dart';
 
 part 'api_request.dart';
@@ -25,7 +26,7 @@ class ApiService {
   final String _baseUrl;
 
   ApiService({String? baseUrl, http.Client? httpClient})
-    : _baseUrl = baseUrl ?? 'https://api.exemplo.com',
+    : _baseUrl = baseUrl ?? EnvironmentHelper.instance.apiBaseUrl,
       _httpClient = httpClient ?? http.Client();
 
   static ApiService get instance => ApiService();

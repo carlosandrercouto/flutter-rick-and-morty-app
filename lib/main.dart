@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'core/helpers/environment_helper.dart';
 import 'features/login/data/datasources/login_datasource.dart';
 import 'features/login/presentation/bloc/login_bloc.dart';
 import 'features/login/presentation/ui/login_screen.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Inicializa o EnvironmentHelper lendo o arquivo .env
+  // antes de qualquer outra coisa — igual ao padrão monetizze
+  await EnvironmentHelper.instance.init();
+
   runApp(const FlutterTemplateApp());
 }
 
@@ -25,9 +32,6 @@ class FlutterTemplateApp extends StatelessWidget {
         ),
       ),
       home: BlocProvider(
-        // Injeta o LoginBloc com o datasource mockado.
-        // Em produção, troque LoginDatasource por uma implementação real
-        // que utilize ApiService + ApiEndpoints.
         create: (_) => LoginBloc(
           loginRepository: LoginDatasource(),
         ),
