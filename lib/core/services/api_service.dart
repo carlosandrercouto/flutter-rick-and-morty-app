@@ -24,10 +24,18 @@ part 'api_request.dart';
 class ApiService {
   final http.Client _httpClient;
   final EnvironmentHelper _envHelper;
+  final MockHelper _mockHelper;
+  final SessionHelper _sessionHelper;
 
-  ApiService({EnvironmentHelper? envHelper, http.Client? httpClient})
-    : _envHelper = envHelper ?? EnvironmentHelper.instance,
-      _httpClient = httpClient ?? http.Client();
+  ApiService({
+    EnvironmentHelper? envHelper,
+    http.Client? httpClient,
+    MockHelper? mockHelper,
+    SessionHelper? sessionHelper,
+  })  : _envHelper = envHelper ?? EnvironmentHelper.instance,
+        _httpClient = httpClient ?? http.Client(),
+        _mockHelper = mockHelper ?? MockHelper.instance,
+        _sessionHelper = sessionHelper ?? SessionHelper.instance;
 
   static ApiService get instance => ApiService();
 
@@ -50,7 +58,7 @@ class ApiService {
     int apiRequestTimeout = 30,
   }) async {
     if (_envHelper.useMock) {
-      return MockHelper.instance.call(
+      return _mockHelper.call(
         endpoint: endpoint,
         body: request.body is Map<String, dynamic>
             ? request.body as Map<String, dynamic>
@@ -64,8 +72,8 @@ class ApiService {
           : null,
     );
 
-    final String? sessionToken = SessionHelper.instance.isAuthenticated
-        ? SessionHelper.instance.token
+    final String? sessionToken = _sessionHelper.isAuthenticated
+        ? _sessionHelper.token
         : null;
 
     final Map<String, String> resolvedHeaders = {
