@@ -29,6 +29,9 @@ class MockHelper {
     // ── Login ──────────────────────────────────────────────────────────────
     '/auth/login': _handleLogin,
     '/auth/reset-password': _handleResetPassword,
+
+    // ── Home ───────────────────────────────────────────────────────────────
+    '/home/transactions': _handleGetTransactions,
   };
 
   /// Retorna a [ApiResponse] mockada para o [endpoint] informado.
@@ -106,6 +109,64 @@ class MockHelper {
       result: {'message': 'E-mail de recuperação enviado com sucesso.'},
     );
   }
+
+  static ApiResponse _handleGetTransactions(Map<String, dynamic> body) {
+    return ApiResponse(
+      status: ApiResponseStatus.success,
+      result: {
+        'balance': {
+          'available': 4820.00,
+          'incomes': 6200.00,
+          'expenses': 1380.00,
+        },
+        'transactions': [
+          {
+            'id': 'txn-001',
+            'name': 'Supermercado Extra',
+            'amount': 347.80,
+            'date': '2024-03-15T10:30:00Z',
+          },
+          {
+            'id': 'txn-002',
+            'name': 'Netflix',
+            'amount': 55.90,
+            'date': '2024-03-14T08:00:00Z',
+          },
+          {
+            'id': 'txn-003',
+            'name': 'Posto Shell',
+            'amount': 210.00,
+            'date': '2024-03-13T17:45:00Z',
+          },
+          {
+            'id': 'txn-004',
+            'name': 'Farmácia Pacheco',
+            'amount': 89.50,
+            'date': '2024-03-12T11:20:00Z',
+          },
+          {
+            'id': 'txn-005',
+            'name': 'iFood',
+            'amount': 63.40,
+            'date': '2024-03-11T20:15:00Z',
+          },
+          {
+            'id': 'txn-006',
+            'name': 'Spotify',
+            'amount': 21.90,
+            'date': '2024-03-10T08:00:00Z',
+          },
+          {
+            'id': 'txn-007',
+            'name': 'Amazon',
+            'amount': 189.99,
+            'date': '2024-03-09T14:32:00Z',
+          },
+        ],
+      },
+    );
+  }
+
 }
 
 /// Tipo da função handler de mock.

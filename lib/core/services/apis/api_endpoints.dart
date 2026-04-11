@@ -19,6 +19,10 @@ enum ApiEndpoints {
   // ===================================================================================================================
   postLogin(ApiRequestType.POST, '/auth/login'),
   postResetPassword(ApiRequestType.POST, '/auth/reset-password'),
+
+  // Feature home : Transações
+  // ===================================================================================================================
+  getTransactions(ApiRequestType.GET, '/home/transactions'),
   ;
 
   // Não altere os parâmetros

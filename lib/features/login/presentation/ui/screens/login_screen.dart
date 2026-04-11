@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../bloc/login_bloc.dart';
-import 'home_screen.dart';
+import '../../bloc/login_bloc.dart';
+import '../../../../home/presentation/ui/screens/home_screen.dart';
 
 /// Tela de Login do aplicativo.
 ///
@@ -43,11 +43,11 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!isValid) return;
 
     context.read<LoginBloc>().add(
-          LoginSubmittedEvent(
-            email: _emailController.text.trim(),
-            password: _passwordController.text.trim(),
-          ),
-        );
+      LoginSubmittedEvent(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      ),
+    );
   }
 
   void _handleState(BuildContext context, LoginState state) {
@@ -55,11 +55,9 @@ class _LoginScreenState extends State<LoginScreen> {
       _showLoading();
     } else if (state is LoginSuccessState) {
       _dismissLoading();
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (_) => HomeScreen(user: state.user),
-        ),
-      );
+      Navigator.of(
+        context,
+      ).pushReplacement(MaterialPageRoute(builder: (_) => const HomeScreen()));
     } else if (state is LoginErrorState) {
       _dismissLoading();
       _showSnackbar(context, state.message);
@@ -72,9 +70,7 @@ class _LoginScreenState extends State<LoginScreen> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (_) => const Center(
-        child: CircularProgressIndicator(),
-      ),
+      builder: (_) => const Center(child: CircularProgressIndicator()),
     );
   }
 
@@ -193,7 +189,7 @@ class _LoginScreenState extends State<LoginScreen> {
             controller: _emailController,
             focusNode: _emailFocus,
             label: 'E-mail',
-            hint: 'usuario@teste.com',
+            hint: 'user@test.com',
             icon: Icons.email_outlined,
             keyboardType: TextInputType.emailAddress,
             inputAction: TextInputAction.next,
@@ -284,8 +280,10 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14),
-              borderSide:
-                  const BorderSide(color: Color(0xFF7C3AED), width: 1.5),
+              borderSide: const BorderSide(
+                color: Color(0xFF7C3AED),
+                width: 1.5,
+              ),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14),
@@ -293,11 +291,16 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             focusedErrorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14),
-              borderSide: const BorderSide(color: Color(0xFFE53E3E), width: 1.5),
+              borderSide: const BorderSide(
+                color: Color(0xFFE53E3E),
+                width: 1.5,
+              ),
             ),
             errorStyle: const TextStyle(color: Color(0xFFE53E3E), fontSize: 12),
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 16,
+            ),
           ),
         ),
       ],
