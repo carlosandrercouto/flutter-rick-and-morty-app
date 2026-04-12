@@ -44,7 +44,9 @@ class BalanceCardWidget extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              balance != null ? _formatCurrency(balance!.available) : 'R\$ --,--',
+              balance != null
+                  ? _formatCurrency(balance!.available)
+                  : 'R\$ --,--',
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 32,
@@ -58,14 +60,18 @@ class BalanceCardWidget extends StatelessWidget {
                 _buildCardChip(
                   icon: Icons.arrow_upward_rounded,
                   label: 'Receitas',
-                  value: balance != null ? _formatCurrency(balance!.incomes) : 'R\$ --,--',
+                  value: balance != null
+                      ? _formatCurrency(balance!.incomes)
+                      : 'R\$ --,--',
                   color: const Color(0xFF3EFFC8),
                 ),
                 const SizedBox(width: 16),
                 _buildCardChip(
                   icon: Icons.arrow_downward_rounded,
                   label: 'Despesas',
-                  value: balance != null ? _formatCurrency(balance!.expenses) : 'R\$ --,--',
+                  value: balance != null
+                      ? _formatCurrency(balance!.expenses)
+                      : 'R\$ --,--',
                   color: const Color(0xFFFF6B8A),
                 ),
               ],

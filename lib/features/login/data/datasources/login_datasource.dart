@@ -26,7 +26,7 @@ class LoginDatasource extends LoginRepository {
     : _apiService = apiService ?? ApiService();
 
   @override
-  Future<Either<Failure?, UserLoginData>> login({
+  Future<Either<Failure?, UserLoginData>> postRequestLogin({
     required String email,
     required String password,
   }) async {
@@ -38,7 +38,7 @@ class LoginDatasource extends LoginRepository {
         requestType: endpoint.requestType,
         body: {'email': email, 'password': password},
       ),
-      devLog: 'LoginDatasource: login',
+      devLog: 'LoginDatasource: postRequestLogin',
       currentStackTrace: StackTrace.current,
     );
 
@@ -49,7 +49,10 @@ class LoginDatasource extends LoginRepository {
         );
         return Future.value(Right(result));
       } catch (error) {
-        log('Error: ${error.toString()}', name: 'LoginDatasource: login');
+        log(
+          'Error: ${error.toString()}',
+          name: 'LoginDatasource: postRequestLogin',
+        );
 
         /// TODO: Implementar gravação de log de erro no Crashlytics ou simular
         return Future.value(const Left(null));

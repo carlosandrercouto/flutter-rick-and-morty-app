@@ -10,25 +10,25 @@ abstract class LoginState extends Equatable {
 /// Estado inicial do BLoC — formulário pronto para interação.
 class LoginInitialState extends LoginState {}
 
-/// Estado emitido enquanto a requisição de login está em progresso.
-class LoginLoadingState extends LoginState {}
+// Relacionado ao evento RequestLoginEvent
+// =====================================================================================================================
 
-/// Estado emitido quando o login é realizado com sucesso.
-class LoginSuccessState extends LoginState {
+class RequestingLoginState extends LoginState {}
+
+class RequestedLoginState extends LoginState {
   final UserLoginData user;
 
-  const LoginSuccessState({required this.user});
+  const RequestedLoginState({required this.user});
 
   @override
   List<Object?> get props => [user];
 }
 
-/// Estado emitido quando ocorre um erro durante o login.
-class LoginErrorState extends LoginState {
-  final String message;
+class ErrorRequestLoginState extends LoginState {
+  final String errorStateMessage;
 
-  const LoginErrorState({required this.message});
+  const ErrorRequestLoginState({required this.errorStateMessage});
 
   @override
-  List<Object?> get props => [message];
+  List<Object?> get props => [errorStateMessage];
 }

@@ -29,21 +29,21 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _handleState(BuildContext context, LoginState state) {
-    if (state is LoginLoadingState) {
+    if (state is RequestingLoginState) {
       _showLoading();
-    } else if (state is LoginSuccessState) {
+    } else if (state is RequestedLoginState) {
       _dismissLoading();
       Navigator.of(
         context,
       ).pushReplacementNamed(RoutesList.HomeScreen.routeName);
-    } else if (state is LoginErrorState) {
+    } else if (state is ErrorRequestLoginState) {
       _dismissLoading();
-      _showSnackbar(context, state.message);
+      _showSnackbar(context, state.errorStateMessage);
     }
   }
 
   void _onLoginSubmitted(String email, String password) {
-    _loginBloc.add(LoginSubmittedEvent(email: email, password: password));
+    _loginBloc.add(RequestLoginEvent(email: email, password: password));
   }
 
   void _showLoading() {
@@ -89,7 +89,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 bloc: _loginBloc,
                 listener: _handleState,
                 buildWhen: (previous, current) =>
-                    current is LoginInitialState || current is LoginErrorState,
+                    current is LoginInitialState ||
+                    current is ErrorRequestLoginState,
                 builder: (context, state) {
                   // Como a UI da tela de login será quase sempre a mesma
                   // independentemente do estado (sendo apenas sobreposta por diálogos de loading),

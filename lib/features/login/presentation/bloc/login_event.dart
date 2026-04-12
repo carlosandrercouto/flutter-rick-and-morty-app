@@ -5,17 +5,14 @@ abstract class LoginEvent {
 }
 
 /// Evento disparado quando o usuário submete o formulário de login.
-class LoginSubmittedEvent extends LoginEvent {
+class RequestLoginEvent extends LoginEvent {
   final String email;
   final String password;
 
-  const LoginSubmittedEvent({
-    required this.email,
-    required this.password,
-  });
+  const RequestLoginEvent({required this.email, required this.password});
 }
 
 /// Evento para resetar o estado do BLoC ao [LoginInitialState].
-class LoginResetEvent extends LoginEvent {
-  const LoginResetEvent();
+class ResetLoginEvent extends LoginEvent {
+  const ResetLoginEvent();
 }

@@ -16,7 +16,10 @@ class HomeDataModel extends HomeDataEntity {
     return HomeDataModel._internal(
       balance: BalanceModel.fromMap(map: balanceMap),
       transactions: transactionsList
-          .map((item) => TransactionModel.fromMap(map: item as Map<String, dynamic>))
+          .map(
+            (item) =>
+                TransactionModel.fromMap(map: item as Map<String, dynamic>),
+          )
           .toList(),
     );
   }

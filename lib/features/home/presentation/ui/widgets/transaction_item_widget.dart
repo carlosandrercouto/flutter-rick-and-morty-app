@@ -18,10 +18,7 @@ class TransactionItemWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFF161A24),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: const Color(0xFF252A38),
-          width: 1,
-        ),
+        border: Border.all(color: const Color(0xFF252A38), width: 1),
       ),
       child: Row(
         children: [

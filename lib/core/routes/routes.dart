@@ -7,7 +7,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../features/home/data/datasources/home_datasource.dart';
 import '../../features/home/presentation/bloc/home_bloc.dart';
 import '../../features/home/presentation/ui/screens/home_screen.dart';
-import '../../features/login/data/datasources/login_datasource.dart';
 import '../../features/login/presentation/bloc/login_bloc.dart';
 import '../../features/login/presentation/ui/screens/login_screen.dart';
 import 'routes_list.dart';
@@ -15,16 +14,17 @@ import 'routes_list.dart';
 Map<String, dynamic> routes = <String, dynamic>{
   // Feature Login
   RoutesList.LoginScreen.routeName: (_) => BlocProvider(
-        create: (_) => LoginBloc(loginRepository: LoginDatasource()),
-        child: const LoginScreen(),
-      ),
+    create: (_) => LoginBloc(),
+    child: const LoginScreen(),
+  ),
 
   // Feature Home
   RoutesList.HomeScreen.routeName: (_) => BlocProvider(
-        create: (_) => HomeBloc(homeRepository: HomeDatasource())
+    create: (_) =>
+        HomeBloc(homeRepository: HomeDatasource())
           ..add(const HomeLoadTransactionsEvent()),
-        child: const HomeScreen(),
-      ),
+    child: const HomeScreen(),
+  ),
 };
 
 List<String> routesRoutedByCupertino = [];
@@ -62,43 +62,49 @@ Route getRoute(RouteSettings settings) {
   }
 
   log('Route ${settings.name} not found', name: 'Push routeName Error:');
-  
+
   // Rota de fallback padrão
-  return _buildMaterialPageRoute(settings, const Scaffold(
-    body: Center(child: Text('Rota não encontrada')),
-  ));
-}
-
-MaterialPageRoute _buildMaterialPageRoute(RouteSettings settings, dynamic builder) {
-  return MaterialPageRoute(
-    settings: settings,
-    builder: (context) => builder,
+  return _buildMaterialPageRoute(
+    settings,
+    const Scaffold(
+      body: Center(
+        child: Text('Rota não encontrada'),
+      ),
+    ),
   );
 }
 
-CupertinoPageRoute _buildCupertinoPageRoute(RouteSettings settings, dynamic builder) {
-  return CupertinoPageRoute(
-    settings: settings,
-    builder: (context) => builder,
-  );
+MaterialPageRoute _buildMaterialPageRoute(
+  RouteSettings settings,
+  dynamic builder,
+) {
+  return MaterialPageRoute(settings: settings, builder: (context) => builder);
 }
 
-PageRouteBuilder _buildAnimatedPageRoute(RouteSettings settings, dynamic builder) {
+CupertinoPageRoute _buildCupertinoPageRoute(
+  RouteSettings settings,
+  dynamic builder,
+) {
+  return CupertinoPageRoute(settings: settings, builder: (context) => builder);
+}
+
+PageRouteBuilder _buildAnimatedPageRoute(
+  RouteSettings settings,
+  dynamic builder,
+) {
   return PageRouteBuilder(
     settings: settings,
     pageBuilder: (context, animation, secondaryAnimation) => builder,
     transitionDuration: const Duration(milliseconds: 700),
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
       var fadeAnimation = animation.drive(
-        Tween<double>(begin: 0.0, end: 1.0).chain(
-          CurveTween(curve: Curves.easeInOut),
-        ),
+        Tween<double>(
+          begin: 0.0,
+          end: 1.0,
+        ).chain(CurveTween(curve: Curves.easeInOut)),
       );
 
-      return FadeTransition(
-        opacity: fadeAnimation,
-        child: child,
-      );
+      return FadeTransition(opacity: fadeAnimation, child: child);
     },
   );
 }

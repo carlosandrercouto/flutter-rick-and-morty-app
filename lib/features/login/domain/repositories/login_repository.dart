@@ -9,7 +9,7 @@ import '../entities/user_login_data.dart';
 /// A implementação concreta (datasource) está em `data/datasources/`.
 abstract class LoginRepository {
   /// Realiza o login com email/usuário e senha.
-  Future<Either<Failure?, UserLoginData>> login({
+  Future<Either<Failure?, UserLoginData>> postRequestLogin({
     required String email,
     required String password,
   });

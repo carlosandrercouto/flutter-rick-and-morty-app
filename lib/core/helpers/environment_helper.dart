@@ -25,10 +25,7 @@ class EnvironmentHelper {
   /// ```dart
   /// await EnvironmentHelper.instance.init();
   /// ```
-  Future<void> init({
-    String? envFile,
-    DotEnv? flutterDotEnv,
-  }) async {
+  Future<void> init({String? envFile, DotEnv? flutterDotEnv}) async {
     _dotEnv = flutterDotEnv ?? dotenv;
 
     try {
@@ -61,7 +58,10 @@ class EnvironmentHelper {
         throw Exception('Env key not found: $fromKey');
       }
     } catch (error, stackTrace) {
-      dev.log('Error: ${error.toString()}', name: 'EnvironmentHelper: _getEnvData');
+      dev.log(
+        'Error: ${error.toString()}',
+        name: 'EnvironmentHelper: _getEnvData',
+      );
       dev.log(stackTrace.toString(), name: 'EnvironmentHelper: _getEnvData');
     }
 

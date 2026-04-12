@@ -6,9 +6,10 @@
 enum LoginErrorType {
   invalidUserOrPassword(apiMessage: 'Usuário ou Senha Inválidos'),
   inactiveUser(apiMessage: 'Usuário inativo!'),
-  genericError(apiMessage: null);
+  genericError(apiMessage: 'Ocorreu um erro inesperado no processo de login.');
 
-  final String? apiMessage;
+  /// TODO: Substituir por key_name posteriormente, após implementação de internacionalização Mensagem de erro da API.
+  final String apiMessage;
 
   const LoginErrorType({required this.apiMessage});
 
