@@ -21,8 +21,8 @@ void main() {
       final model = HomeDataModel.fromMap(map: map);
 
       expect(model.balance, isA<BalanceModel>());
-      expect(model.transactions, isA<List<TransactionModel>>());
-      expect(model.transactions.length, 1);
+      expect(model.transactionsList, isA<List<TransactionModel>>());
+      expect(model.transactionsList.length, 1);
     });
 
     test('fromMap deve definir coleções/objetos vazios em map faltante', () {
@@ -31,7 +31,7 @@ void main() {
       final model = HomeDataModel.fromMap(map: map);
 
       expect(model.balance, isA<BalanceModel>());
-      expect(model.transactions, isEmpty);
+      expect(model.transactionsList, isEmpty);
     });
   });
 }

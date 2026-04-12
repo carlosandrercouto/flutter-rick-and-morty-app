@@ -4,25 +4,25 @@ import 'package:flutter_template/core/usecases/usecase.dart';
 import 'package:flutter_template/features/home/domain/entities/balance_entity.dart';
 import 'package:flutter_template/features/home/domain/entities/home_data_entity.dart';
 import 'package:flutter_template/features/home/domain/repositories/home_repository.dart';
-import 'package:flutter_template/features/home/domain/usecases/get_home_data_usecase.dart';
+import 'package:flutter_template/features/home/domain/usecases/get_home_transaction_data_usecase.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 class MockHomeRepository implements HomeRepository {
   Either<Failure?, HomeDataEntity>? result;
 
   @override
-  Future<Either<Failure?, HomeDataEntity>> getHomeData() async {
+  Future<Either<Failure?, HomeDataEntity>> getHomeTransactonsData() async {
     return result ?? const Left(null);
   }
 }
 
 void main() {
   late MockHomeRepository mockRepository;
-  late GetHomeDataUseCase usecase;
+  late GetHomeTransactionDataUseCase usecase;
 
   setUp(() {
     mockRepository = MockHomeRepository();
-    usecase = GetHomeDataUseCase(repository: mockRepository);
+    usecase = GetHomeTransactionDataUseCase(repository: mockRepository);
   });
 
   test(
@@ -33,7 +33,7 @@ void main() {
         incomes: 200,
         expenses: 100,
       );
-      const tHomeData = HomeDataEntity(balance: tBalance, transactions: []);
+      const tHomeData = HomeDataEntity(balance: tBalance, transactionsList: []);
       mockRepository.result = const Right(tHomeData);
 
       final result = await usecase(NoParams());

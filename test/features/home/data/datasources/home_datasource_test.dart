@@ -45,7 +45,7 @@ void main() {
           },
         );
 
-        final result = await datasource.getHomeData();
+        final result = await datasource.getHomeTransactonsData();
 
         expect(mockApiService.lastEndpoint, ApiEndpoints.getTransactions.url);
         expect(result.isRight(), isTrue);
@@ -59,7 +59,7 @@ void main() {
           status: ApiResponseStatus.errorSessionExpired,
         );
 
-        final result = await datasource.getHomeData();
+        final result = await datasource.getHomeTransactonsData();
 
         expect(result.isLeft(), isTrue);
         result.fold(

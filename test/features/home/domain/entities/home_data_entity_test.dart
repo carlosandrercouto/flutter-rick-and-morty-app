@@ -11,12 +11,12 @@ void main() {
 
       final entity1 = HomeDataEntity(
         balance: balance,
-        transactions: transactions,
+        transactionsList: transactions,
       );
 
       final entity2 = HomeDataEntity(
         balance: balance,
-        transactions: transactions,
+        transactionsList: transactions,
       );
 
       expect(entity1, equals(entity2));
