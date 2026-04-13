@@ -43,6 +43,8 @@ class HomeDatasource extends HomeRepository {
           name: 'HomeDatasource: getEpsode',
         );
 
+        /// TODO: Implementar gravação de logs de erro tal como Firebase Analytics ou similar aqui
+
         return const Left(null);
       }
     } else if (apiResponse.status == ApiResponseStatus.errorTimeout) {
@@ -92,6 +94,8 @@ class HomeDatasource extends HomeRepository {
           'Error: ${error.toString()}',
           name: 'HomeDatasource: getCharacters',
         );
+
+        /// TODO: Implementar gravação de logs de erro tal como Firebase Analytics ou similar aqui
 
         return const Left(null);
       }

@@ -1,11 +1,10 @@
 // ignore_for_file: constant_identifier_names
 
 enum RoutesList {
-  // Home
+  // Feature: Home
+  // ==================================================================================================================
   HomeScreen('HomeScreen'),
-
-  // Characters
-  CharactersScreen('CharactersScreen');
+  ;
 
   // Não altere os parametros
   final String routeName;

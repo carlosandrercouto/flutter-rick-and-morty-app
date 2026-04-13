@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../../core/core_export.dart';
 import '../../bloc/home_bloc.dart';
 import '../widgets/widgets_export.dart';
 
-/// Tela principal da aplicação.
+/// Tela principal da aplicação — estilo IMDb.
 ///
-/// Demonstra o fluxo completo da feature Home:
-/// - Dados do episódio gerenciados pelo [HomeBloc]
+/// Responsável exclusivamente pelo carregamento e exibição dos dados do
+/// episódio. Quando o episódio é carregado com sucesso, instancia o
+/// [HomeCharactersWidget], que gerencia de forma autônoma o carregamento
+/// da listagem de personagens.
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -18,10 +19,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late HomeBloc _homeBloc;
-  final SessionHelper _sessionHelper = SessionHelper.instance;
 
-
-  // ID do episódio exibido
   static const int _epsodeId = 28;
 
   @override
@@ -36,50 +34,29 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFF0D0F14),
       body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            HomeHeaderWidget(userName: _sessionHelper.userName),
+        child: BlocBuilder<HomeBloc, HomeState>(
+          bloc: _homeBloc,
+          buildWhen: (_, current) =>
+              current is LoadingEpsodeState ||
+              current is LoadedEpsodeState ||
+              current is ErrorLoadEpsodeState,
+          builder: (context, state) {
+            if (state is LoadedEpsodeState) {
+              return _buildLoadedState(state);
+            } else if (state is ErrorLoadEpsodeState) {
+              return _buildErrorState(state);
+            }
 
-            const SizedBox(height: 24),
-            _buildSectionTitle(),
-            const SizedBox(height: 12),
-            // Seção do episódio — expande e rola
-            Expanded(
-              child: BlocConsumer<HomeBloc, HomeState>(
-                bloc: _homeBloc,
-                listenWhen: (_, current) =>
-                    current is ErrorLoadEpsodeState,
-                listener: (context, state) {
-                  // Listener para erros globais ou expiração de sessão
-                },
-                buildWhen: (_, current) =>
-                    current is LoadingEpsodeState ||
-                    current is LoadedEpsodeState ||
-                    current is ErrorLoadEpsodeState,
-                builder: (context, state) {
-                  if (state is LoadedEpsodeState) {
-                    return SingleChildScrollView(
-                      padding: const EdgeInsets.only(bottom: 24),
-                      child: EpsodeCardWidget(epsode: state.epsode),
-                    );
-                  } else if (state is ErrorLoadEpsodeState) {
-                    return _buildEpsodeError(state);
-                  }
-                  return _buildLoading();
-                },
-              ),
-            ),
-          ],
+            return _buildLoadingState();
+          },
         ),
       ),
     );
   }
 
-  // Widgets auxiliares
+  // Retorna widgets de acordo com o estados do bloc
   // ===================================================================================================================
-
-  Widget _buildLoading() {
+  Widget _buildLoadingState() {
     return const Center(
       child: CircularProgressIndicator(
         color: Color(0xFF6C63FF),
@@ -88,7 +65,35 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildEpsodeError(ErrorLoadEpsodeState state) {
+  Widget _buildLoadedState(LoadedEpsodeState state) {
+    return CustomScrollView(
+      physics: const BouncingScrollPhysics(),
+      slivers: [
+        // Header com metadados da série e do episódio
+        SliverToBoxAdapter(
+          child: HomeSeriesHeaderWidget(epsode: state.epsode),
+        ),
+
+        // Título da seção
+        SliverToBoxAdapter(
+          child: _buildSectionTitle('Personagens'),
+        ),
+
+        // Widget auto-suficiente — instanciado somente no sucesso do episódio
+        SliverToBoxAdapter(
+          child: HomeCharactersWidget(
+            ids: state.epsode.characters,
+            homeBloc: _homeBloc,
+          ),
+        ),
+
+        // Espaçamento inferior
+        const SliverToBoxAdapter(child: SizedBox(height: 40)),
+      ],
+    );
+  }
+
+  Widget _buildErrorState(ErrorLoadEpsodeState state) {
     return HomeErrorWidget(
       icon: Icons.tv_off_rounded,
       message: state.errorStateType.message,
@@ -96,24 +101,33 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildSectionTitle() {
-    return const Padding(
-      padding: EdgeInsets.symmetric(horizontal: 24),
+  // Widgets auxiliares
+  // ===================================================================================================================
+  Widget _buildSectionTitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
       child: Row(
         children: [
-          Icon(
-            Icons.play_circle_fill_rounded,
-            color: Color(0xFF6C63FF),
-            size: 20,
+          Container(
+            width: 4,
+            height: 20,
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFF6C63FF), Color(0xFF3ECFCF)],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+              borderRadius: BorderRadius.circular(2),
+            ),
           ),
-          SizedBox(width: 8),
+          const SizedBox(width: 10),
           Text(
-            'Episódio em destaque',
-            style: TextStyle(
+            title,
+            style: const TextStyle(
               color: Colors.white,
-              fontSize: 17,
-              fontWeight: FontWeight.w700,
-              letterSpacing: -0.2,
+              fontSize: 20,
+              fontWeight: FontWeight.w800,
+              letterSpacing: -0.5,
             ),
           ),
         ],

@@ -1,31 +1,17 @@
 import 'dart:developer';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import '../../features/home/presentation/bloc/home_bloc.dart';
-import '../../features/home/presentation/ui/screens/characters_screen.dart';
 import '../../features/home/presentation/ui/screens/home_screen.dart';
 import 'routes_list.dart';
+
 Map<String, dynamic> routes = <String, dynamic>{
   // Feature Home
   RoutesList.HomeScreen.routeName: (_) => BlocProvider(
     create: (_) => HomeBloc(),
     child: const HomeScreen(),
   ),
-
-  // Feature Characters — HomeBloc dedicado para a screen
-  RoutesList.CharactersScreen.routeName: (args) {
-    final map = args as Map<String, dynamic>;
-    return BlocProvider(
-      create: (_) => HomeBloc(),
-      child: CharactersScreen(
-        characterIds: map['characterIds'] as List<int>,
-        episodeName: map['episodeName'] as String,
-      ),
-    );
-  },
 };
 
 List<String> routesRoutedByCupertino = [];
