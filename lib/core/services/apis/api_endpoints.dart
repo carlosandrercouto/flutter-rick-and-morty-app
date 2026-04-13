@@ -23,6 +23,9 @@ enum ApiEndpoints {
   // Feature home : Transações
   // ===================================================================================================================
   getTransactions(ApiRequestType.GET, '/home/transactions'),
+
+  getEpsodios(ApiRequestType.GET, '/episode'),
+  getCharacters(ApiRequestType.GET, '/character'),
   ;
 
   // Não altere os parâmetros

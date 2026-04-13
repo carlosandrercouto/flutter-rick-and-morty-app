@@ -8,5 +8,8 @@
     },
     "files.watcherExclude": {
         "**/.fvm": true
+    },
+    "code-runner.executorMap": {
+        "dart": "fvm dart run"
     }
 }

@@ -30,3 +30,47 @@ class ErrorLoadHomeTransactionsState extends HomeState {
   @override
   List<Object?> get props => [errorStateType];
 }
+
+// Relacionado ao evento LoadEpsodeEvent
+// =====================================================================================================================
+class LoadingEpsodeState extends HomeState {}
+
+class LoadedEpsodeState extends HomeState {
+  LoadedEpsodeState({required this.epsode});
+
+  final Epsode epsode;
+
+  @override
+  List<Object?> get props => [epsode];
+}
+
+class ErrorLoadEpsodeState extends HomeState {
+  ErrorLoadEpsodeState({required this.errorStateType});
+
+  final ErrorStateType errorStateType;
+
+  @override
+  List<Object?> get props => [errorStateType];
+}
+
+// Relacionado ao evento LoadCharactersEvent
+// =====================================================================================================================
+class LoadingCharactersState extends HomeState {}
+
+class LoadedCharactersState extends HomeState {
+  LoadedCharactersState({required this.characters});
+
+  final List<CharacterEntity> characters;
+
+  @override
+  List<Object?> get props => [characters];
+}
+
+class ErrorLoadCharactersState extends HomeState {
+  ErrorLoadCharactersState({required this.errorStateType});
+
+  final ErrorStateType errorStateType;
+
+  @override
+  List<Object?> get props => [errorStateType];
+}

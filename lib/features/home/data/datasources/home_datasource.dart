@@ -60,4 +60,90 @@ class HomeDatasource extends HomeRepository {
 
     return const Left(null);
   }
+
+  @override
+  Future<Either<Failure?, Epsode>> getEpsode({required int id}) async {
+    final ApiEndpoints endpoint = ApiEndpoints.getEpsodios;
+
+    final ApiResponse apiResponse = await _apiService(
+      endpoint: '${endpoint.url}/$id',
+      request: ApiRequest(requestType: endpoint.requestType, body: {}),
+      devLog: 'HomeDatasource: getEpsode',
+      currentStackTrace: StackTrace.current,
+    );
+
+    if (apiResponse.status == ApiResponseStatus.success) {
+      try {
+        final Epsode resultData = EpsodeModel.fromMap(
+          map: apiResponse.result!,
+        );
+
+        return Right(resultData);
+      } catch (error) {
+        log(
+          'Error: ${error.toString()}',
+          name: 'HomeDatasource: getEpsode',
+        );
+
+        return const Left(null);
+      }
+    } else if (apiResponse.status == ApiResponseStatus.errorTimeout) {
+      return Left(TimeoutFailure());
+    } else if (apiResponse.status == ApiResponseStatus.errorSessionExpired) {
+      return Left(SessionExpiredFailure());
+    }
+
+    return const Left(null);
+  }
+
+  @override
+  Future<Either<Failure?, List<CharacterEntity>>> getCharacters({
+    required List<int> ids,
+  }) async {
+    final ApiEndpoints endpoint = ApiEndpoints.getCharacters;
+    // A API aceita múltiplos IDs: /character/1,2,3
+    final idsParam = ids.join(',');
+
+    final ApiResponse apiResponse = await _apiService(
+      endpoint: '${endpoint.url}/$idsParam',
+      request: ApiRequest(requestType: endpoint.requestType, body: {}),
+      devLog: 'HomeDatasource: getCharacters',
+      currentStackTrace: StackTrace.current,
+    );
+
+    if (apiResponse.status == ApiResponseStatus.success) {
+      try {
+        final result = apiResponse.result!;
+
+        // Quando a API retorna um array, o ApiService envolve em {'data': [...]}
+        // Quando retorna um único objeto, retorna diretamente como Map
+        final List<dynamic> rawList = result.containsKey('data')
+            ? result['data'] as List<dynamic>
+            : [result];
+
+        final List<CharacterEntity> characters = rawList
+            .map((item) => CharacterModel.fromMap(
+                  map: item as Map<String, dynamic>,
+                ))
+            .toList()
+          ..sort((a, b) => a.name.compareTo(b.name));
+
+        return Right(characters);
+      } catch (error) {
+        log(
+          'Error: ${error.toString()}',
+          name: 'HomeDatasource: getCharacters',
+        );
+
+        return const Left(null);
+      }
+    } else if (apiResponse.status == ApiResponseStatus.errorTimeout) {
+      return Left(TimeoutFailure());
+    } else if (apiResponse.status == ApiResponseStatus.errorSessionExpired) {
+      return Left(SessionExpiredFailure());
+    }
+
+    return const Left(null);
+  }
 }
+

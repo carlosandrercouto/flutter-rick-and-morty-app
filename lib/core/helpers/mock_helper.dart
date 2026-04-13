@@ -34,8 +34,16 @@ class MockHelper {
     '/home/transactions': _handleGetTransactions,
   };
 
+  /// Prefixos de endpoints que possuem mock (para rotas com IDs dinâmicos).
+  static const List<String> _mockedPrefixes = [
+    '/episode/',
+    '/character/',
+  ];
+
   /// Verifica se a rota especificada possui um mock cadastrado.
-  bool shouldMockRoute(String endpoint) => _mocks.containsKey(endpoint);
+  bool shouldMockRoute(String endpoint) =>
+      _mocks.containsKey(endpoint) ||
+      _mockedPrefixes.any((p) => endpoint.startsWith(p));
 
   /// Retorna a [ApiResponse] mockada para o [endpoint] informado.
   ///
@@ -47,14 +55,20 @@ class MockHelper {
     log('Mock called for endpoint: $endpoint', name: 'MockHelper');
     await Future.delayed(_mockDelay);
 
+    // Tenta match exato primeiro
     final handler = _mocks[endpoint];
+    if (handler != null) return handler(body ?? {});
 
-    if (handler == null) {
-      log('Mock not found for endpoint: $endpoint', name: 'MockHelper');
-      return ApiResponse(status: ApiResponseStatus.errorGeneric);
+    // Depois tenta por prefixo
+    if (endpoint.startsWith('/episode/')) {
+      return _handleGetEpsode(endpoint);
+    }
+    if (endpoint.startsWith('/character/')) {
+      return _handleGetCharacters(endpoint);
     }
 
-    return handler(body ?? {});
+    log('Mock not found for endpoint: $endpoint', name: 'MockHelper');
+    return ApiResponse(status: ApiResponseStatus.errorGeneric);
   }
 
   // ── Handlers ───────────────────────────────────────────────────────────────
@@ -167,6 +181,133 @@ class MockHelper {
           },
         ],
       },
+    );
+  }
+
+  static ApiResponse _handleGetEpsode(String endpoint) {
+    return ApiResponse(
+      status: ApiResponseStatus.success,
+      result: {
+        'id': 28,
+        'name': 'The Ricklantis Mixup',
+        'air_date': 'September 10, 2017',
+        'episode': 'S03E07',
+        'characters': [
+          'https://rickandmortyapi.com/api/character/1',
+          'https://rickandmortyapi.com/api/character/2',
+          'https://rickandmortyapi.com/api/character/4',
+          'https://rickandmortyapi.com/api/character/5',
+          'https://rickandmortyapi.com/api/character/6',
+          'https://rickandmortyapi.com/api/character/18',
+          'https://rickandmortyapi.com/api/character/21',
+          'https://rickandmortyapi.com/api/character/22',
+        ],
+        'url': 'https://rickandmortyapi.com/api/episode/28',
+        'created': '2017-11-10T12:56:36.965Z',
+      },
+    );
+  }
+
+  static const List<Map<String, dynamic>> _allCharacters = [
+    {
+      'id': 1,
+      'name': 'Rick Sanchez',
+      'status': 'Alive',
+      'species': 'Human',
+      'gender': 'Male',
+      'image': 'https://rickandmortyapi.com/api/character/avatar/1.jpeg',
+      'origin': {'name': 'Earth (C-137)'},
+      'location': {'name': 'Citadel of Ricks'},
+    },
+    {
+      'id': 2,
+      'name': 'Morty Smith',
+      'status': 'Alive',
+      'species': 'Human',
+      'gender': 'Male',
+      'image': 'https://rickandmortyapi.com/api/character/avatar/2.jpeg',
+      'origin': {'name': 'Earth (C-137)'},
+      'location': {'name': 'Citadel of Ricks'},
+    },
+    {
+      'id': 4,
+      'name': 'Beth Smith',
+      'status': 'Alive',
+      'species': 'Human',
+      'gender': 'Female',
+      'image': 'https://rickandmortyapi.com/api/character/avatar/4.jpeg',
+      'origin': {'name': 'Earth (C-137)'},
+      'location': {'name': 'Earth (Replacement Dimension)'},
+    },
+    {
+      'id': 5,
+      'name': 'Jerry Smith',
+      'status': 'Alive',
+      'species': 'Human',
+      'gender': 'Male',
+      'image': 'https://rickandmortyapi.com/api/character/avatar/5.jpeg',
+      'origin': {'name': 'Earth (C-137)'},
+      'location': {'name': 'Citadel of Ricks'},
+    },
+    {
+      'id': 6,
+      'name': 'Abadango Cluster Princess',
+      'status': 'Alive',
+      'species': 'Alien',
+      'gender': 'Female',
+      'image': 'https://rickandmortyapi.com/api/character/avatar/6.jpeg',
+      'origin': {'name': 'Abadango'},
+      'location': {'name': 'Abadango'},
+    },
+    {
+      'id': 18,
+      'name': 'Antenna Morty',
+      'status': 'Alive',
+      'species': 'Human',
+      'gender': 'Male',
+      'image': 'https://rickandmortyapi.com/api/character/avatar/18.jpeg',
+      'origin': {'name': 'unknown'},
+      'location': {'name': 'Citadel of Ricks'},
+    },
+    {
+      'id': 21,
+      'name': 'Aqua Morty',
+      'status': 'unknown',
+      'species': 'Humanoid',
+      'gender': 'Male',
+      'image': 'https://rickandmortyapi.com/api/character/avatar/21.jpeg',
+      'origin': {'name': 'unknown'},
+      'location': {'name': 'Citadel of Ricks'},
+    },
+    {
+      'id': 22,
+      'name': 'Aqua Rick',
+      'status': 'unknown',
+      'species': 'Humanoid',
+      'gender': 'Male',
+      'image': 'https://rickandmortyapi.com/api/character/avatar/22.jpeg',
+      'origin': {'name': 'unknown'},
+      'location': {'name': 'Citadel of Ricks'},
+    },
+  ];
+
+  static ApiResponse _handleGetCharacters(String endpoint) {
+    // Extrai os IDs da URL: /character/1,2,3
+    final idsSegment =
+        endpoint.replaceFirst('/character/', '').replaceAll(' ', '');
+    final requestedIds = idsSegment
+        .split(',')
+        .map((s) => int.tryParse(s))
+        .whereType<int>()
+        .toSet();
+
+    final filtered = _allCharacters
+        .where((c) => requestedIds.contains(c['id'] as int))
+        .toList();
+
+    return ApiResponse(
+      status: ApiResponseStatus.success,
+      result: {'data': filtered},
     );
   }
 }

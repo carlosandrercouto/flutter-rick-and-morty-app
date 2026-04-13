@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../../core/enums/error_state_type_enum.dart';
 import '../../../../../core/helpers/session_helper.dart';
-import '../../../domain/entities/entities_export.dart';
 import '../../bloc/home_bloc.dart';
 import '../widgets/widgets_export.dart';
 
@@ -11,7 +10,7 @@ import '../widgets/widgets_export.dart';
 ///
 /// Demonstra o fluxo completo da feature Home:
 /// - Dados do usuário recuperados do [SessionHelper]
-/// - Lista de transações gerenciada pelo [HomeBloc]
+/// - Dados do episódio gerenciados pelo [HomeBloc]
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -23,12 +22,15 @@ class _HomeScreenState extends State<HomeScreen> {
   late HomeBloc _homeBloc;
   final String _userName = SessionHelper.instance.userName;
 
+  // ID do episódio exibido — pode futuramente ser parametrizado pela rota
+  static const int _epsodeId = 28;
+
   @override
   void initState() {
+    super.initState();
     _homeBloc = BlocProvider.of<HomeBloc>(context);
     _homeBloc.add(const LoadHomeTransactionsEvent());
-
-    super.initState();
+    _homeBloc.add(const LoadEpsodeEvent(id: _epsodeId));
   }
 
   @override
@@ -40,8 +42,12 @@ class _HomeScreenState extends State<HomeScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             HomeHeaderWidget(userName: _userName),
+            // Cartão de saldo — reage apenas aos estados de transações
             BlocBuilder<HomeBloc, HomeState>(
               bloc: _homeBloc,
+              buildWhen: (_, current) =>
+                  current is LoadedHomeTranactionsState ||
+                  current is LoadingHomeTransactionsState,
               builder: (context, state) {
                 if (state is LoadedHomeTranactionsState) {
                   return BalanceCardWidget(balance: state.homeData.balance);
@@ -50,38 +56,34 @@ class _HomeScreenState extends State<HomeScreen> {
               },
             ),
             const SizedBox(height: 24),
-            _buildTransactionListTitle(context),
-            const SizedBox(height: 8),
+            _buildSectionTitle(),
+            const SizedBox(height: 12),
+            // Seção do episódio — expande e rola
             Expanded(
               child: BlocConsumer<HomeBloc, HomeState>(
                 bloc: _homeBloc,
-                listenWhen: (_, current) {
-                  return [
-                    ErrorLoadHomeTransactionsState,
-                  ].contains(current.runtimeType);
-                },
+                listenWhen: (_, current) =>
+                    current is ErrorLoadEpsodeState,
                 listener: (context, state) {
-                  if (state is ErrorLoadHomeTransactionsState &&
+                  if (state is ErrorLoadEpsodeState &&
                       state.errorStateType == ErrorStateType.sessionExpired) {
-                    /// TODO: Implementar tratamento para quando a sessão do usuário expirar
-                    // Navigator.of(context, rootNavigator: true).pushReplacementNamed('/login');
+                    /// TODO: Redirecionar para login quando sessão expirar
                   }
                 },
-                buildWhen: (previous, current) {
-                  return (current is LoadingHomeTransactionsState ||
-                      current is LoadedHomeTranactionsState ||
-                      current is ErrorLoadHomeTransactionsState);
-                },
-                builder: (BuildContext context, HomeState currentState) {
-                  if (currentState is LoadedHomeTranactionsState) {
-                    return _loadedHomeState(
-                      currentState.homeData.transactionsList,
+                buildWhen: (_, current) =>
+                    current is LoadingEpsodeState ||
+                    current is LoadedEpsodeState ||
+                    current is ErrorLoadEpsodeState,
+                builder: (context, state) {
+                  if (state is LoadedEpsodeState) {
+                    return SingleChildScrollView(
+                      padding: const EdgeInsets.only(bottom: 24),
+                      child: EpsodeCardWidget(epsode: state.epsode),
                     );
-                  } else if (currentState is ErrorLoadHomeTransactionsState) {
-                    return _errorHandleLoadTransactionsState(currentState);
+                  } else if (state is ErrorLoadEpsodeState) {
+                    return _buildEpsodeError(state);
                   }
-
-                  return _loadingHomeState();
+                  return _buildLoading();
                 },
               ),
             ),
@@ -91,10 +93,10 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // Retorna widget de acordo com o estado retornado pelo Bloc
+  // Widgets auxiliares
   // ===================================================================================================================
 
-  Widget _loadingHomeState() {
+  Widget _buildLoading() {
     return const Center(
       child: CircularProgressIndicator(
         color: Color(0xFF6C63FF),
@@ -103,52 +105,32 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _loadedHomeState(List<TransactionEntity> transactions) {
-    if (transactions.isEmpty) {
-      return const Center(
-        child: Text(
-          'Nenhuma transação encontrada.',
-          style: TextStyle(color: Color(0xFF9BA3B8), fontSize: 14),
-        ),
-      );
-    }
-    return TransactionListWidget(transactions: transactions);
-  }
-
-  Widget _errorHandleLoadTransactionsState(
-    ErrorLoadHomeTransactionsState state,
-  ) {
+  Widget _buildEpsodeError(ErrorLoadEpsodeState state) {
     return HomeErrorWidget(
-      icon: Icons.error_outline_rounded,
+      icon: Icons.tv_off_rounded,
       message: state.errorStateType.message,
-      onTap: () => _homeBloc.add(const LoadHomeTransactionsEvent()),
+      onTap: () => _homeBloc.add(const LoadEpsodeEvent(id: _epsodeId)),
     );
   }
 
-  // Widgets auxiliares
-  // ===================================================================================================================
-
-  Widget _buildTransactionListTitle(BuildContext context) {
+  Widget _buildSectionTitle() {
     return const Padding(
       padding: EdgeInsets.symmetric(horizontal: 24),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
+          Icon(
+            Icons.play_circle_fill_rounded,
+            color: Color(0xFF6C63FF),
+            size: 20,
+          ),
+          SizedBox(width: 8),
           Text(
-            'Últimas transações',
+            'Episódio em destaque',
             style: TextStyle(
               color: Colors.white,
               fontSize: 17,
               fontWeight: FontWeight.w700,
               letterSpacing: -0.2,
-            ),
-          ),
-          Text(
-            'Ver todas',
-            style: TextStyle(
-              color: Color(0xFF6C63FF),
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
             ),
           ),
         ],
