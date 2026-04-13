@@ -3,10 +3,18 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('HomeEvent', () {
-    group('LoadHomeTransactionsEvent', () {
-      test('can be instantiated', () {
-        const event = LoadHomeTransactionsEvent();
-        expect(event, isNotNull);
+    group('LoadEpsodeEvent', () {
+      test('supports value equality', () {
+        expect(const LoadEpsodeEvent(id: 1), const LoadEpsodeEvent(id: 1));
+      });
+    });
+
+    group('LoadCharactersEvent', () {
+      test('supports value equality', () {
+        expect(
+          const LoadCharactersEvent(ids: [1, 2]),
+          const LoadCharactersEvent(ids: [1, 2]),
+        );
       });
     });
   });

@@ -1,8 +1,5 @@
 import 'package:flutter_template/core/enums/api_response_status_enum.dart';
-import 'package:flutter_template/core/errors/errors_export.dart';
-import 'package:flutter_template/core/errors/session_expired_failure.dart';
 import 'package:flutter_template/core/services/api_service.dart';
-import 'package:flutter_template/core/services/apis/api_endpoints.dart';
 import 'package:flutter_template/core/entities/api_response.dart';
 import 'package:flutter_template/features/home/data/datasources/home_datasource.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -34,39 +31,57 @@ void main() {
   });
 
   group('HomeDatasource', () {
-    test(
-      'deve retornar HomeDataEntity quando sucesso com map validos',
-      () async {
-        mockApiService.result = ApiResponse(
-          status: ApiResponseStatus.success,
-          result: {
-            'balance': {'available': 100.0, 'incomes': 20.0, 'expenses': 10.0},
-            'transactions': [],
-          },
-        );
+    group('getEpsode', () {
+      test(
+        'should return Epsode when success',
+        () async {
+          mockApiService.result = ApiResponse(
+            status: ApiResponseStatus.success,
+            result: {
+              'id': 28,
+              'name': 'The Ricklantis Mixup',
+              'air_date': 'September 10, 2017',
+              'episode': 'S03E07',
+              'characters': ['https://rickandmortyapi.com/api/character/1'],
+            },
+          );
 
-        final result = await datasource.getHomeTransactonsData();
+          final result = await datasource.getEpsode(id: 28);
 
-        expect(mockApiService.lastEndpoint, ApiEndpoints.getTransactions.url);
-        expect(result.isRight(), isTrue);
-      },
-    );
+          expect(mockApiService.lastEndpoint, contains('/episode/28'));
+          expect(result.isRight(), isTrue);
+        },
+      );
+    });
 
-    test(
-      'deve retornar SessionExpiredFailure quando estatus for errorSessionExpired',
-      () async {
-        mockApiService.result = ApiResponse(
-          status: ApiResponseStatus.errorSessionExpired,
-        );
+    group('getCharacters', () {
+      test(
+        'should return List of CharacterEntity when success',
+        () async {
+          mockApiService.result = ApiResponse(
+            status: ApiResponseStatus.success,
+            result: {
+              'data': [
+                {
+                  'id': 1,
+                  'name': 'Rick Sanchez',
+                  'status': 'Alive',
+                  'species': 'Human',
+                  'gender': 'Male',
+                  'image': '',
+                  'origin': {'name': 'Earth'},
+                  'location': {'name': 'Earth'},
+                },
+              ],
+            },
+          );
 
-        final result = await datasource.getHomeTransactonsData();
+          final result = await datasource.getCharacters(ids: [1]);
 
-        expect(result.isLeft(), isTrue);
-        result.fold(
-          (l) => expect(l, isA<SessionExpiredFailure>()),
-          (r) => fail('Deveria ser Left'),
-        );
-      },
-    );
+          expect(mockApiService.lastEndpoint, contains('/character/1'));
+          expect(result.isRight(), isTrue);
+        },
+      );
+    });
   });
 }

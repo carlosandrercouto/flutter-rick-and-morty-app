@@ -8,11 +8,19 @@ import 'package:flutter_template/features/home/presentation/bloc/home_bloc.dart'
 import 'package:flutter_test/flutter_test.dart';
 
 class MockHomeRepository implements HomeRepository {
-  Either<Failure?, HomeDataEntity>? result;
+  Either<Failure?, Epsode>? epsodeResult;
+  Either<Failure?, List<CharacterEntity>>? charactersResult;
 
   @override
-  Future<Either<Failure?, HomeDataEntity>> getHomeTransactonsData() async {
-    return result ?? const Left(null);
+  Future<Either<Failure?, Epsode>> getEpsode({required int id}) async {
+    return epsodeResult ?? const Left(null);
+  }
+
+  @override
+  Future<Either<Failure?, List<CharacterEntity>>> getCharacters({
+    required List<int> ids,
+  }) async {
+    return charactersResult ?? const Left(null);
   }
 }
 
@@ -24,8 +32,26 @@ void main() {
   });
 
   group('HomeBloc', () {
-    const tBalance = BalanceEntity(available: 1000, incomes: 500, expenses: 200);
-    const tHomeData = HomeDataEntity(balance: tBalance, transactionsList: []);
+    const tEpsode = Epsode(
+      id: 28,
+      name: 'The Ricklantis Mixup',
+      airDate: 'September 10, 2017',
+      epsode: 'S03E07',
+      characters: [1, 2],
+    );
+
+    const tCharacters = [
+      CharacterEntity(
+        id: 1,
+        name: 'Rick Sanchez',
+        status: 'Alive',
+        species: 'Human',
+        gender: 'Male',
+        imageUrl: 'https://image1',
+        originName: 'Earth',
+        locationName: 'Earth',
+      ),
+    ];
 
     test('initial state is HomeInitialState', () {
       final bloc = HomeBloc(homeRepository: mockHomeRepository);
@@ -33,68 +59,55 @@ void main() {
       bloc.close();
     });
 
-    blocTest<HomeBloc, HomeState>(
-      'should emit [LoadingHomeTransactionsState, LoadedHomeTranactionsState] on success',
-      build: () {
-        mockHomeRepository.result = const Right(tHomeData);
-        return HomeBloc(homeRepository: mockHomeRepository);
-      },
-      act: (bloc) => bloc.add(const LoadHomeTransactionsEvent()),
-      expect: () => [
-        isA<LoadingHomeTransactionsState>(),
-        isA<LoadedHomeTranactionsState>().having((state) => state.homeData, 'homeData', tHomeData),
-      ],
-    );
+    group('LoadEpsodeEvent', () {
+      blocTest<HomeBloc, HomeState>(
+        'should emit [LoadingEpsodeState, LoadedEpsodeState] on success',
+        build: () {
+          mockHomeRepository.epsodeResult = const Right(tEpsode);
+          return HomeBloc(homeRepository: mockHomeRepository);
+        },
+        act: (bloc) => bloc.add(const LoadEpsodeEvent(id: 28)),
+        expect: () => [
+          isA<LoadingEpsodeState>(),
+          isA<LoadedEpsodeState>().having((state) => state.epsode, 'epsode', tEpsode),
+        ],
+      );
 
-    blocTest<HomeBloc, HomeState>(
-      'should emit [LoadingHomeTransactionsState, ErrorLoadHomeTransactionsState] on TimeoutFailure',
-      build: () {
-        mockHomeRepository.result = Left(TimeoutFailure());
-        return HomeBloc(homeRepository: mockHomeRepository);
-      },
-      act: (bloc) => bloc.add(const LoadHomeTransactionsEvent()),
-      expect: () => [
-        isA<LoadingHomeTransactionsState>(),
-        isA<ErrorLoadHomeTransactionsState>().having(
-          (state) => state.errorStateType,
-          'errorStateType',
-          ErrorStateType.timeout,
-        ),
-      ],
-    );
+      blocTest<HomeBloc, HomeState>(
+        'should emit [LoadingEpsodeState, ErrorLoadEpsodeState] on TimeoutFailure',
+        build: () {
+          mockHomeRepository.epsodeResult = Left(TimeoutFailure());
+          return HomeBloc(homeRepository: mockHomeRepository);
+        },
+        act: (bloc) => bloc.add(const LoadEpsodeEvent(id: 28)),
+        expect: () => [
+          isA<LoadingEpsodeState>(),
+          isA<ErrorLoadEpsodeState>().having(
+            (state) => state.errorStateType,
+            'errorStateType',
+            ErrorStateType.timeout,
+          ),
+        ],
+      );
+    });
 
-    blocTest<HomeBloc, HomeState>(
-      'should emit [LoadingHomeTransactionsState, ErrorLoadHomeTransactionsState] on SessionExpiredFailure',
-      build: () {
-        mockHomeRepository.result = Left(SessionExpiredFailure());
-        return HomeBloc(homeRepository: mockHomeRepository);
-      },
-      act: (bloc) => bloc.add(const LoadHomeTransactionsEvent()),
-      expect: () => [
-        isA<LoadingHomeTransactionsState>(),
-        isA<ErrorLoadHomeTransactionsState>().having(
-          (state) => state.errorStateType,
-          'errorStateType',
-          ErrorStateType.sessionExpired,
-        ),
-      ],
-    );
-
-    blocTest<HomeBloc, HomeState>(
-      'should emit [LoadingHomeTransactionsState, ErrorLoadHomeTransactionsState] on generic failure',
-      build: () {
-        mockHomeRepository.result = const Left(null);
-        return HomeBloc(homeRepository: mockHomeRepository);
-      },
-      act: (bloc) => bloc.add(const LoadHomeTransactionsEvent()),
-      expect: () => [
-        isA<LoadingHomeTransactionsState>(),
-        isA<ErrorLoadHomeTransactionsState>().having(
-          (state) => state.errorStateType,
-          'errorStateType',
-          ErrorStateType.genericError,
-        ),
-      ],
-    );
+    group('LoadCharactersEvent', () {
+      blocTest<HomeBloc, HomeState>(
+        'should emit [LoadingCharactersState, LoadedCharactersState] on success',
+        build: () {
+          mockHomeRepository.charactersResult = const Right(tCharacters);
+          return HomeBloc(homeRepository: mockHomeRepository);
+        },
+        act: (bloc) => bloc.add(const LoadCharactersEvent(ids: [1])),
+        expect: () => [
+          isA<LoadingCharactersState>(),
+          isA<LoadedCharactersState>().having(
+            (state) => state.characters,
+            'characters',
+            tCharacters,
+          ),
+        ],
+      );
+    });
   });
 }

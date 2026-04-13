@@ -5,54 +5,45 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('HomeState', () {
-    const tBalance = BalanceEntity(available: 1, incomes: 1, expenses: 1);
-    const tHomeData = HomeDataEntity(balance: tBalance, transactionsList: []);
+    const tEpsode = Epsode(
+      id: 1,
+      name: 'Test',
+      airDate: 'Test',
+      epsode: 'Test',
+      characters: [1],
+    );
 
     group('HomeInitialState', () {
       test('supports value equality (via identityHashCode in base class)', () {
-        // By design in our project, some states use identityHashCode to always trigger rebuilds
+        // By design, some states use identityHashCode to always trigger rebuilds
         final state1 = HomeInitialState();
         final state2 = HomeInitialState();
         expect(state1, isNot(equals(state2)));
       });
     });
 
-    group('LoadingHomeTransactionsState', () {
+    group('LoadingEpsodeState', () {
       test('supports value equality (via identityHashCode in base class)', () {
-        final state1 = LoadingHomeTransactionsState();
-        final state2 = LoadingHomeTransactionsState();
+        final state1 = LoadingEpsodeState();
+        final state2 = LoadingEpsodeState();
         expect(state1, isNot(equals(state2)));
       });
     });
 
-    group('LoadedHomeTranactionsState', () {
+    group('LoadedEpsodeState', () {
       test('supports value equality', () {
         expect(
-          LoadedHomeTranactionsState(homeData: tHomeData),
-          equals(LoadedHomeTranactionsState(homeData: tHomeData)),
-        );
-      });
-
-      test('props are correct', () {
-        expect(
-          LoadedHomeTranactionsState(homeData: tHomeData).props,
-          equals([tHomeData]),
+          LoadedEpsodeState(epsode: tEpsode),
+          equals(LoadedEpsodeState(epsode: tEpsode)),
         );
       });
     });
 
-    group('ErrorLoadHomeTransactionsState', () {
+    group('ErrorLoadEpsodeState', () {
       test('supports value equality', () {
         expect(
-          ErrorLoadHomeTransactionsState(errorStateType: ErrorStateType.timeout),
-          equals(ErrorLoadHomeTransactionsState(errorStateType: ErrorStateType.timeout)),
-        );
-      });
-
-      test('props are correct', () {
-        expect(
-          ErrorLoadHomeTransactionsState(errorStateType: ErrorStateType.timeout).props,
-          equals([ErrorStateType.timeout]),
+          ErrorLoadEpsodeState(errorStateType: ErrorStateType.timeout),
+          equals(ErrorLoadEpsodeState(errorStateType: ErrorStateType.timeout)),
         );
       });
     });
