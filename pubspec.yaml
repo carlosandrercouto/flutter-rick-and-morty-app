@@ -23,6 +23,9 @@ dependencies:
   # HTTP
   http: ^1.4.0
 
+  # Image Cache
+  cached_network_image: ^3.4.1
+
   # Internationalisation (date & currency formatting)
   intl: ^0.20.2
 

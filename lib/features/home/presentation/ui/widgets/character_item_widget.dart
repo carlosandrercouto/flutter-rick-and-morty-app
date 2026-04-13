@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../../core/ui/widgets/widgets_export.dart';
 import '../../../domain/entities/character_entity.dart';
 
 /// Item de personagem exibido na listagem.
@@ -27,22 +28,7 @@ class CharacterItemWidget extends StatelessWidget {
             ),
             child: Hero(
               tag: 'character-${character.id}',
-              child: Image.network(
-                character.imageUrl,
-                width: 88,
-                height: 88,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, _) => Container(
-                  width: 88,
-                  height: 88,
-                  color: const Color(0xFF252B3B),
-                  child: const Icon(
-                    Icons.person_rounded,
-                    color: Color(0xFF9BA3B8),
-                    size: 36,
-                  ),
-                ),
-              ),
+              child: CustomCacheNetworkImage(imageUrl: character.imageUrl),
             ),
           ),
           const SizedBox(width: 14),
