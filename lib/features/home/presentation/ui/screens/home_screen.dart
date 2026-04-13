@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../bloc/home_bloc.dart';
 import '../widgets/widgets_export.dart';
+import '../../../../../core/ui/widgets/widgets_export.dart';
 
 /// Tela principal da aplicação — estilo IMDb.
 ///
@@ -21,6 +22,7 @@ class _HomeScreenState extends State<HomeScreen> {
   late HomeBloc _homeBloc;
 
   static const int _epsodeId = 28;
+  DateTime _lastRefresh = DateTime.now();
 
   @override
   void initState() {
@@ -66,30 +68,39 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildLoadedState(LoadedEpsodeState state) {
-    return CustomScrollView(
-      physics: const BouncingScrollPhysics(),
-      slivers: [
-        // Header com metadados da série e do episódio
-        SliverToBoxAdapter(
-          child: HomeSeriesHeaderWidget(epsode: state.epsode),
+    return CustomRefreshIndicator(
+      lastRefresh: _lastRefresh,
+      updateLastRefresh: () => _lastRefresh = DateTime.now(),
+      onRefresh: () async {
+        _homeBloc.add(const LoadEpsodeEvent(id: _epsodeId));
+      },
+      child: CustomScrollView(
+        physics: const BouncingScrollPhysics(
+          parent: AlwaysScrollableScrollPhysics(),
         ),
-
-        // Título da seção
-        SliverToBoxAdapter(
-          child: _buildSectionTitle('Personagens'),
-        ),
-
-        // Widget auto-suficiente — instanciado somente no sucesso do episódio
-        SliverToBoxAdapter(
-          child: HomeCharactersWidget(
-            ids: state.epsode.characters,
-            homeBloc: _homeBloc,
+        slivers: [
+          // Header com metadados da série e do episódio
+          SliverToBoxAdapter(
+            child: HomeSeriesHeaderWidget(epsode: state.epsode),
           ),
-        ),
 
-        // Espaçamento inferior
-        const SliverToBoxAdapter(child: SizedBox(height: 40)),
-      ],
+          // Título da seção
+          SliverToBoxAdapter(
+            child: _buildSectionTitle('Personagens'),
+          ),
+
+          // Widget auto-suficiente — instanciado somente no sucesso do episódio
+          SliverToBoxAdapter(
+            child: HomeCharactersWidget(
+              ids: state.epsode.characters,
+              homeBloc: _homeBloc,
+            ),
+          ),
+
+          // Espaçamento inferior
+          const SliverToBoxAdapter(child: SizedBox(height: 40)),
+        ],
+      ),
     );
   }
 
