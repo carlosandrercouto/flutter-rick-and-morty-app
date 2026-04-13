@@ -29,4 +29,28 @@ class EpsodeModel extends Epsode {
           .toList(),
     );
   }
+
+  /// Constrói um [EpsodeModel] a partir de dados já parseados (ex: cache local).
+  factory EpsodeModel.fromCacheMap({required Map<String, dynamic> map}) {
+    return EpsodeModel._internal(
+      id: map['id'] as int,
+      name: map['name'] as String,
+      airDate: map['air_date'] as String,
+      epsode: map['episode'] as String,
+      characters: (map['characters'] as List<dynamic>)
+          .map((e) => e as int)
+          .toList(),
+    );
+  }
+
+  /// Serializa o modelo para armazenamento em cache.
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'name': name,
+      'air_date': airDate,
+      'episode': epsode,
+      'characters': characters,
+    };
+  }
 }

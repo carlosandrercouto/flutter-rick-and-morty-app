@@ -28,6 +28,7 @@ dependencies:
 
   # Internationalisation (date & currency formatting)
   intl: ^0.20.2
+  sqflite: ^2.4.2
 
 dev_dependencies:
   flutter_test:

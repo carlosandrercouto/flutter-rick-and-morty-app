@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../bloc/home_bloc.dart';
 import '../widgets/widgets_export.dart';
 import '../../../../../core/ui/widgets/widgets_export.dart';
+import '../../../../../core/enums/cache_source_enum.dart';
 
 /// Tela principal da aplicação — estilo IMDb.
 ///
@@ -82,6 +83,23 @@ class _HomeScreenState extends State<HomeScreen> {
           // Header com metadados da série e do episódio
           SliverToBoxAdapter(
             child: HomeSeriesHeaderWidget(epsode: state.epsode),
+          ),
+
+          // Indicador de cache (origem dos dados + contagem regressiva)
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(24, 15, 24, 0),
+              child: Row(
+                children: [
+                  CacheIndicatorWidget(
+                    cacheKey: 'episode_$_epsodeId',
+                    source:
+                        _homeBloc.datasource?.lastEpsodeSource ??
+                        CacheSource.remote,
+                  ),
+                ],
+              ),
+            ),
           ),
 
           // Título da seção

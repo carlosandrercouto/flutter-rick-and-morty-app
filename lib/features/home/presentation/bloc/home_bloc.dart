@@ -18,9 +18,19 @@ part 'home_state.dart';
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final HomeRepository _homeRepository;
 
+  /// Referência ao datasource padrão, disponível para que a UI possa
+  /// inspecionar [HomeDatasource.lastEpsodeSource] e similares.
+  ///
+  /// É `null` quando um repositório customizado é injetado (ex: em testes).
+  final HomeDatasource? datasource;
+
   HomeBloc({HomeRepository? homeRepository})
-    : _homeRepository = homeRepository ?? HomeDatasource(),
-      super(HomeInitialState()) {
+      : this._init(homeRepository ?? HomeDatasource());
+
+  HomeBloc._init(HomeRepository repo)
+      : datasource = repo is HomeDatasource ? repo : null,
+        _homeRepository = repo,
+        super(HomeInitialState()) {
     on<LoadEpsodeEvent>(_onLoadEpsode);
     on<LoadCharactersEvent>(_onLoadCharacters);
   }
