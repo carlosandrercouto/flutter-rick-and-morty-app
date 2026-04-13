@@ -12,7 +12,7 @@ void main() {
   group('SessionHelper', () {
     test('should start with default values', () {
       expect(sessionHelper.isAuthenticated, isFalse);
-      expect(sessionHelper.userName, 'Rick Sanchez'); // Default set for simplification
+      expect(sessionHelper.userName, '');
     });
 
     test('should update session correctly', () {

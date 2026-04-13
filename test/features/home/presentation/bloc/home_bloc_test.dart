@@ -2,6 +2,7 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_template/core/enums/error_state_type_enum.dart';
 import 'package:flutter_template/core/errors/errors_export.dart';
+import 'package:flutter_template/features/home/data/datasources/home_datasource.dart';
 import 'package:flutter_template/features/home/domain/entities/entities_export.dart';
 import 'package:flutter_template/features/home/domain/repositories/home_repository.dart';
 import 'package:flutter_template/features/home/presentation/bloc/home_bloc.dart';
@@ -66,6 +67,18 @@ void main() {
     test('initial state is HomeInitialState', () {
       final bloc = HomeBloc(homeRepository: mockHomeRepository);
       expect(bloc.state, isA<HomeInitialState>());
+      bloc.close();
+    });
+
+    test('datasource is null when a custom HomeRepository is injected', () {
+      final bloc = HomeBloc(homeRepository: mockHomeRepository);
+      expect(bloc.datasource, isNull);
+      bloc.close();
+    });
+
+    test('datasource is a HomeDatasource when no repo is injected', () {
+      final bloc = HomeBloc();
+      expect(bloc.datasource, isA<HomeDatasource>());
       bloc.close();
     });
 

@@ -25,11 +25,11 @@ import '../../../../core/enums/cache_source_enum.dart';
 /// [lastCharactersSource] para exibição na UI.
 class HomeDatasource extends HomeRepository {
   final ApiService _apiService;
-  final DatabaseHelper _db;
+  final DatabaseHelperBase _db;
 
   HomeDatasource({
     ApiService? apiService,
-    DatabaseHelper? databaseHelper,
+    DatabaseHelperBase? databaseHelper,
   }) : _apiService = apiService ?? ApiService(),
        _db = databaseHelper ?? DatabaseHelper.instance;
 

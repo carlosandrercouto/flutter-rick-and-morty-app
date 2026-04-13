@@ -2,6 +2,15 @@ import 'dart:developer';
 
 import 'package:sqflite/sqflite.dart';
 
+/// Interface de cache que permite injeção de fakes nos testes sem depender
+/// do tipo [Database] do sqflite.
+abstract class DatabaseHelperBase {
+  Future<CacheEntry?> get({required String key});
+  Future<void> upsert({required String key, required String jsonData});
+  Future<void> delete({required String key});
+  Future<void> clearAll();
+}
+
 /// Singleton responsável pelo acesso ao banco SQLite local.
 ///
 /// Armazena pares [key] → [jsonData] com timestamp [updatedAt] (Unix ms)
@@ -13,7 +22,7 @@ import 'package:sqflite/sqflite.dart';
 /// await db.upsert(key: 'episode_28', jsonData: '{"id":28,...}');
 /// final entry = await db.get(key: 'episode_28');
 /// ```
-class DatabaseHelper {
+class DatabaseHelper extends DatabaseHelperBase {
   static final DatabaseHelper _instance = DatabaseHelper._internal();
   static DatabaseHelper get instance => _instance;
 
