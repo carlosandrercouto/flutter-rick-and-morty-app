@@ -1,16 +1,11 @@
 part of 'home_bloc.dart';
 
-/// Evento base da feature Home.
+/// Evento base para o HomeBloc.
 abstract class HomeEvent extends Equatable {
   const HomeEvent();
 
   @override
   List<Object?> get props => [];
-}
-
-/// Dispara o carregamento das transações.
-class LoadHomeTransactionsEvent extends HomeEvent {
-  const LoadHomeTransactionsEvent();
 }
 
 /// Dispara o carregamento de um episódio pelo seu [id].

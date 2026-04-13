@@ -7,17 +7,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../features/home/presentation/bloc/home_bloc.dart';
 import '../../features/home/presentation/ui/screens/characters_screen.dart';
 import '../../features/home/presentation/ui/screens/home_screen.dart';
-import '../../features/login/presentation/bloc/login_bloc.dart';
-import '../../features/login/presentation/ui/screens/login_screen.dart';
 import 'routes_list.dart';
-
 Map<String, dynamic> routes = <String, dynamic>{
-  // Feature Login
-  RoutesList.LoginScreen.routeName: (_) => BlocProvider(
-    create: (_) => LoginBloc(),
-    child: const LoginScreen(),
-  ),
-
   // Feature Home
   RoutesList.HomeScreen.routeName: (_) => BlocProvider(
     create: (_) => HomeBloc(),
@@ -39,7 +30,6 @@ Map<String, dynamic> routes = <String, dynamic>{
 
 List<String> routesRoutedByCupertino = [];
 List<String> animatedRoutes = [
-  RoutesList.LoginScreen.routeName,
   RoutesList.HomeScreen.routeName,
 ];
 

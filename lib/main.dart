@@ -24,7 +24,7 @@ class FlutterTemplateApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Template',
+      title: 'Rick and Morty App',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,
@@ -33,7 +33,7 @@ class FlutterTemplateApp extends StatelessWidget {
           brightness: Brightness.dark,
         ),
       ),
-      initialRoute: RoutesList.LoginScreen.routeName,
+      initialRoute: RoutesList.HomeScreen.routeName,
       onGenerateRoute: getRoute,
     );
   }

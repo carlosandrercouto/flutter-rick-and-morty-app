@@ -2,28 +2,8 @@
 
 import '../../../core/enums/api_request_type_enum.dart';
 
-/// Centralização de todos os endpoints da API do template.
-///
-/// Repositório de endereços e endpoints da API.
-/// cada valor do enum carrega o [ApiRequestType] e a [url] do endpoint,
-/// evitando que o método HTTP fique espalhado pelo código.
-///
-/// Exemplo de uso:
-/// ```dart
-/// final endpoint = ApiEndpoints.postLogin;
-/// print(endpoint.requestType); // ApiRequestType.POST
-/// print(endpoint.url);         // /auth/login
-/// ```
+/// Centralização de todos os endpoints da API do app Rick and Morty.
 enum ApiEndpoints {
-  // Feature login : Login
-  // ===================================================================================================================
-  postLogin(ApiRequestType.POST, '/auth/login'),
-  postResetPassword(ApiRequestType.POST, '/auth/reset-password'),
-
-  // Feature home : Transações
-  // ===================================================================================================================
-  getTransactions(ApiRequestType.GET, '/home/transactions'),
-
   getEpsodios(ApiRequestType.GET, '/episode'),
   getCharacters(ApiRequestType.GET, '/character'),
   ;

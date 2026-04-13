@@ -12,54 +12,12 @@ import '../../domain/entities/entities_export.dart';
 import '../../domain/repositories/home_repository.dart';
 import '../models/models_export.dart';
 
-/// Datasource da home.
-///
-/// Arquitetura do Datasource:
-/// - Extends o repositório abstrato diretamente
-/// - Recebe [ApiService] como dependência injetável no construtor
-/// - Cada método: seleciona o endpoint no enum → chama _apiService (ou mock) →
-///   trata [ApiResponseStatus] → mapeia com o model
+/// Datasource da home focado na Rick and Morty API.
 class HomeDatasource extends HomeRepository {
   final ApiService _apiService;
 
   HomeDatasource({ApiService? apiService})
     : _apiService = apiService ?? ApiService();
-
-  @override
-  Future<Either<Failure?, HomeDataEntity>> getHomeTransactonsData() async {
-    final ApiEndpoints endpoint = ApiEndpoints.getTransactions;
-
-    final ApiResponse apiResponse = await _apiService(
-      endpoint: endpoint.url,
-      request: ApiRequest(requestType: endpoint.requestType, body: {}),
-      devLog: 'HomeDatasource: getHomeTransactonsData',
-      currentStackTrace: StackTrace.current,
-    );
-
-    if (apiResponse.status == ApiResponseStatus.success) {
-      try {
-        final HomeDataEntity resultData = HomeDataModel.fromMap(
-          map: apiResponse.result!,
-        );
-
-        return Right(resultData);
-      } catch (error) {
-        log(
-          'Error: ${error.toString()}',
-          name: 'HomeDatasource: getHomeTransactonsData',
-        );
-
-        /// TODO: Implementar gravação de log de erro no Crashlytics ou simular
-        return const Left(null);
-      }
-    } else if (apiResponse.status == ApiResponseStatus.errorTimeout) {
-      return Left(TimeoutFailure());
-    } else if (apiResponse.status == ApiResponseStatus.errorSessionExpired) {
-      return Left(SessionExpiredFailure());
-    }
-
-    return const Left(null);
-  }
 
   @override
   Future<Either<Failure?, Epsode>> getEpsode({required int id}) async {
@@ -101,7 +59,6 @@ class HomeDatasource extends HomeRepository {
     required List<int> ids,
   }) async {
     final ApiEndpoints endpoint = ApiEndpoints.getCharacters;
-    // A API aceita múltiplos IDs: /character/1,2,3
     final idsParam = ids.join(',');
 
     final ApiResponse apiResponse = await _apiService(
@@ -115,8 +72,6 @@ class HomeDatasource extends HomeRepository {
       try {
         final result = apiResponse.result!;
 
-        // Quando a API retorna um array, o ApiService envolve em {'data': [...]}
-        // Quando retorna um único objeto, retorna diretamente como Map
         final List<dynamic> rawList = result.containsKey('data')
             ? result['data'] as List<dynamic>
             : [result];
@@ -146,4 +101,3 @@ class HomeDatasource extends HomeRepository {
     return const Left(null);
   }
 }
-

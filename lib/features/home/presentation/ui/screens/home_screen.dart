@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../../core/enums/error_state_type_enum.dart';
-import '../../../../../core/helpers/session_helper.dart';
+import '../../../../../core/core_export.dart';
 import '../../bloc/home_bloc.dart';
 import '../widgets/widgets_export.dart';
 
 /// Tela principal da aplicação.
 ///
 /// Demonstra o fluxo completo da feature Home:
-/// - Dados do usuário recuperados do [SessionHelper]
 /// - Dados do episódio gerenciados pelo [HomeBloc]
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -20,16 +18,16 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late HomeBloc _homeBloc;
-  final String _userName = SessionHelper.instance.userName;
+  final SessionHelper _sessionHelper = SessionHelper.instance;
 
-  // ID do episódio exibido — pode futuramente ser parametrizado pela rota
+
+  // ID do episódio exibido
   static const int _epsodeId = 28;
 
   @override
   void initState() {
     super.initState();
     _homeBloc = BlocProvider.of<HomeBloc>(context);
-    _homeBloc.add(const LoadHomeTransactionsEvent());
     _homeBloc.add(const LoadEpsodeEvent(id: _epsodeId));
   }
 
@@ -41,20 +39,8 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            HomeHeaderWidget(userName: _userName),
-            // Cartão de saldo — reage apenas aos estados de transações
-            BlocBuilder<HomeBloc, HomeState>(
-              bloc: _homeBloc,
-              buildWhen: (_, current) =>
-                  current is LoadedHomeTranactionsState ||
-                  current is LoadingHomeTransactionsState,
-              builder: (context, state) {
-                if (state is LoadedHomeTranactionsState) {
-                  return BalanceCardWidget(balance: state.homeData.balance);
-                }
-                return const BalanceCardWidget();
-              },
-            ),
+            HomeHeaderWidget(userName: _sessionHelper.userName),
+
             const SizedBox(height: 24),
             _buildSectionTitle(),
             const SizedBox(height: 12),
@@ -65,10 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 listenWhen: (_, current) =>
                     current is ErrorLoadEpsodeState,
                 listener: (context, state) {
-                  if (state is ErrorLoadEpsodeState &&
-                      state.errorStateType == ErrorStateType.sessionExpired) {
-                    /// TODO: Redirecionar para login quando sessão expirar
-                  }
+                  // Listener para erros globais ou expiração de sessão
                 },
                 buildWhen: (_, current) =>
                     current is LoadingEpsodeState ||

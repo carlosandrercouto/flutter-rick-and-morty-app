@@ -1,57 +1,49 @@
 import 'dart:developer';
 
-import '../../features/login/domain/entities/user_login_data.dart';
-
-/// Gerencia os dados da sessão do usuário em memória.
-///
-/// Singleton que centraliza o acesso ao token de API e dados do usuário,
-/// eliminando a necessidade de passar o token em cada DataSource individualmente.
-///
-/// Deve ser inicializado logo após o login bem-sucedido via [initUserLoginData].
-///
-/// Exemplo de uso no DataSource:
-/// ```dart
-/// final token = SessionHelper.instance.token;
-/// ```
+/// Helper singleton para gerenciar dados da sessão do usuário.
+/// 
+/// Armazena informações temporárias como token e nome do usuário
+/// para serem acessadas globalmente no app.
 class SessionHelper {
-  SessionHelper._();
-
-  static final SessionHelper _instance = SessionHelper._();
-
-  /// Instância singleton do [SessionHelper].
+  static final SessionHelper _instance = SessionHelper._internal();
   static SessionHelper get instance => _instance;
 
-  late UserLoginData _userLoginData;
+  SessionHelper._internal();
 
-  /// Dados completos do usuário logado.
-  UserLoginData get userLoginData => _userLoginData;
+  String _token = '';
+  String _userName = 'Rick Sanchez'; // Valor padrão para o app simplificado
+  String _userId = '';
+  String _userEmail = '';
 
-  /// Token de acesso à API.
-  String get token => _userLoginData.token;
+  String get token => _token;
+  String get userName => _userName;
+  String get userId => _userId;
+  String get userEmail => _userEmail;
 
-  /// ID do usuário logado.
-  String get userId => _userLoginData.userId;
+  bool get isAuthenticated => _token.isNotEmpty;
+  bool get isLogged => isAuthenticated;
 
-  /// Nome do usuário logado.
-  String get userName => _userLoginData.name;
 
-  /// E-mail do usuário logado.
-  String get userEmail => _userLoginData.email;
+  /// Atualiza os dados da sessão após o login.
+  void updateSession({
+    required String token,
+    required String userName,
+    required String userId,
+    required String userEmail,
+  }) {
+    _token = token;
+    _userName = userName;
+    _userId = userId;
+    _userEmail = userEmail;
+    log('Session updated for user: $userName', name: 'SessionHelper');
+  }
 
-  /// Whether o usuário está autenticado (possui token e userId válidos).
-  bool get isAuthenticated => _userLoginData.isAuthenticated;
-
-  /// Inicializa os dados do usuário após login bem-sucedido.
-  ///
-  /// Deve ser chamado imediatamente após receber os dados de login,
-  /// antes de qualquer navegação ou chamada autenticada à API.
-  void initUserLoginData({required UserLoginData userLoginData}) {
-    _userLoginData = userLoginData;
-
-    log(userLoginData.userId, name: '👤 SessionHelper: userId');
-    log(
-      userLoginData.token.isNotEmpty ? '[token set]' : '[token empty]',
-      name: '👤 SessionHelper: token',
-    );
+  /// Limpa os dados da sessão (logout).
+  void clearSession() {
+    _token = '';
+    _userName = '';
+    _userId = '';
+    _userEmail = '';
+    log('Session cleared', name: 'SessionHelper');
   }
 }
