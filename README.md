@@ -56,7 +56,7 @@ lib/
 ### Pré-requisitos
 
 - [FVM (Flutter Version Manager)](https://fvm.app) instalado globalmente
-- Flutter **3.41.6** (gerenciado via FVM — veja abaixo)
+- Flutter **3.41.6** (gerenciado via FVM recomendado — veja abaixo)
 
 ### 1. Instalar o FVM
 
@@ -67,6 +67,22 @@ brew install fvm
 
 # ou via pub global
 dart pub global activate fvm
+```
+> **⚠️ Usando Flutter Global (Sem FVM)**
+>
+> Caso prefira não utilizar o FVM, certifique-se de estar na versão 3.41.x do Flutter para evitar conflitos de dependências.
+
+```bash
+# Instalar dependências
+flutter pub get
+
+# Configurar iOS (apenas macOS)
+cd ios
+pod install
+cd ..
+
+# Executar
+flutter run
 ```
 
 ### 2. Clonar e configurar o SDK
