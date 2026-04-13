@@ -1,5 +1,13 @@
 import '../../domain/entities/epsode.dart';
 
+/// Model de parsing do episódio recebido da API Rick and Morty.
+///
+/// Campos esperados pela API:
+/// - `id`: int
+/// - `name`: String — nome do episódio
+/// - `air_date`: String — data de exibição original (ex: "September 10, 2017")
+/// - `episode`: String — código do episódio no formato "SxxExx" (ex: "S03E07")
+/// - `characters`: List\<String\> — lista de URLs dos personagens do episódio
 class EpsodeModel extends Epsode {
   const EpsodeModel._internal({
     required super.id,

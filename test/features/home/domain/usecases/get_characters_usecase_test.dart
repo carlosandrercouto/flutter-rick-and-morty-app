@@ -25,11 +25,6 @@ void main() {
   late MockHomeRepository mockHomeRepository;
   late GetCharactersUseCase useCase;
 
-  setUp(() {
-    mockHomeRepository = MockHomeRepository();
-    useCase = GetCharactersUseCase(repository: mockHomeRepository);
-  });
-
   const tCharacters = [
     CharacterEntity(
       id: 1,
@@ -41,21 +36,88 @@ void main() {
       originName: 'Earth',
       locationName: 'Earth',
     ),
+    CharacterEntity(
+      id: 2,
+      name: 'Morty Smith',
+      status: 'Alive',
+      species: 'Human',
+      gender: 'Male',
+      imageUrl: 'https://image2',
+      originName: 'Earth',
+      locationName: 'Earth',
+    ),
   ];
 
-  test('should get characters from repository', () async {
-    mockHomeRepository.result = const Right(tCharacters);
-
-    final result = await useCase(const GetCharactersParams(ids: [1]));
-
-    expect(result, const Right(tCharacters));
+  setUp(() {
+    mockHomeRepository = MockHomeRepository();
+    useCase = GetCharactersUseCase(repository: mockHomeRepository);
   });
 
-  test('should return failure when repository fails', () async {
-    mockHomeRepository.result = Left(TimeoutFailure());
+  group('GetCharactersUseCase', () {
+    test('should return Right(List<CharacterEntity>) when repository succeeds',
+        () async {
+      mockHomeRepository.result = const Right(tCharacters);
 
-    final result = await useCase(const GetCharactersParams(ids: [1]));
+      final result = await useCase(const GetCharactersParams(ids: [1, 2]));
 
-    expect(result, Left(TimeoutFailure()));
+      expect(result, const Right(tCharacters));
+    });
+
+    test('should return Left(TimeoutFailure) when repository returns timeout',
+        () async {
+      mockHomeRepository.result = Left(TimeoutFailure());
+
+      final result = await useCase(const GetCharactersParams(ids: [1]));
+
+      expect(result.isLeft(), isTrue);
+      result.fold(
+        (failure) => expect(failure, isA<TimeoutFailure>()),
+        (_) => fail('Expected Left'),
+      );
+    });
+
+    test(
+      'should return Left(SessionExpiredFailure) when repository returns session expired',
+      () async {
+        mockHomeRepository.result = Left(SessionExpiredFailure());
+
+        final result = await useCase(const GetCharactersParams(ids: [1]));
+
+        expect(result.isLeft(), isTrue);
+        result.fold(
+          (failure) => expect(failure, isA<SessionExpiredFailure>()),
+          (_) => fail('Expected Left'),
+        );
+      },
+    );
+
+    test('should return Left(null) when repository returns generic failure',
+        () async {
+      mockHomeRepository.result = const Left(null);
+
+      final result = await useCase(const GetCharactersParams(ids: [1]));
+
+      expect(result.isLeft(), isTrue);
+      result.fold(
+        (failure) => expect(failure, isNull),
+        (_) => fail('Expected Left'),
+      );
+    });
+
+    group('GetCharactersParams', () {
+      test('supports value equality', () {
+        expect(
+          const GetCharactersParams(ids: [1, 2]),
+          const GetCharactersParams(ids: [1, 2]),
+        );
+      });
+
+      test('instances with different ids are not equal', () {
+        expect(
+          const GetCharactersParams(ids: [1]),
+          isNot(const GetCharactersParams(ids: [2])),
+        );
+      });
+    });
   });
 }

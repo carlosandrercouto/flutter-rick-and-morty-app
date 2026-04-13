@@ -27,37 +27,49 @@ class MockHomeRepository implements HomeRepository {
 void main() {
   late MockHomeRepository mockHomeRepository;
 
+  const tEpsode = Epsode(
+    id: 28,
+    name: 'The Ricklantis Mixup',
+    airDate: 'September 10, 2017',
+    epsode: 'S03E07',
+    characters: [1, 2],
+  );
+
+  const tCharacters = [
+    CharacterEntity(
+      id: 1,
+      name: 'Rick Sanchez',
+      status: 'Alive',
+      species: 'Human',
+      gender: 'Male',
+      imageUrl: 'https://image1',
+      originName: 'Earth',
+      locationName: 'Earth',
+    ),
+    CharacterEntity(
+      id: 2,
+      name: 'Morty Smith',
+      status: 'Alive',
+      species: 'Human',
+      gender: 'Male',
+      imageUrl: 'https://image2',
+      originName: 'Earth',
+      locationName: 'Earth',
+    ),
+  ];
+
   setUp(() {
     mockHomeRepository = MockHomeRepository();
   });
 
   group('HomeBloc', () {
-    const tEpsode = Epsode(
-      id: 28,
-      name: 'The Ricklantis Mixup',
-      airDate: 'September 10, 2017',
-      epsode: 'S03E07',
-      characters: [1, 2],
-    );
-
-    const tCharacters = [
-      CharacterEntity(
-        id: 1,
-        name: 'Rick Sanchez',
-        status: 'Alive',
-        species: 'Human',
-        gender: 'Male',
-        imageUrl: 'https://image1',
-        originName: 'Earth',
-        locationName: 'Earth',
-      ),
-    ];
-
     test('initial state is HomeInitialState', () {
       final bloc = HomeBloc(homeRepository: mockHomeRepository);
       expect(bloc.state, isA<HomeInitialState>());
       bloc.close();
     });
+
+    // ── LoadEpsodeEvent ─────────────────────────────────────────────────────
 
     group('LoadEpsodeEvent', () {
       blocTest<HomeBloc, HomeState>(
@@ -69,12 +81,16 @@ void main() {
         act: (bloc) => bloc.add(const LoadEpsodeEvent(id: 28)),
         expect: () => [
           isA<LoadingEpsodeState>(),
-          isA<LoadedEpsodeState>().having((state) => state.epsode, 'epsode', tEpsode),
+          isA<LoadedEpsodeState>().having(
+            (s) => s.epsode,
+            'epsode',
+            tEpsode,
+          ),
         ],
       );
 
       blocTest<HomeBloc, HomeState>(
-        'should emit [LoadingEpsodeState, ErrorLoadEpsodeState] on TimeoutFailure',
+        'should emit [LoadingEpsodeState, ErrorLoadEpsodeState(timeout)] on TimeoutFailure',
         build: () {
           mockHomeRepository.epsodeResult = Left(TimeoutFailure());
           return HomeBloc(homeRepository: mockHomeRepository);
@@ -83,13 +99,49 @@ void main() {
         expect: () => [
           isA<LoadingEpsodeState>(),
           isA<ErrorLoadEpsodeState>().having(
-            (state) => state.errorStateType,
+            (s) => s.errorStateType,
             'errorStateType',
             ErrorStateType.timeout,
           ),
         ],
       );
+
+      blocTest<HomeBloc, HomeState>(
+        'should emit [LoadingEpsodeState, ErrorLoadEpsodeState(sessionExpired)] on SessionExpiredFailure',
+        build: () {
+          mockHomeRepository.epsodeResult = Left(SessionExpiredFailure());
+          return HomeBloc(homeRepository: mockHomeRepository);
+        },
+        act: (bloc) => bloc.add(const LoadEpsodeEvent(id: 28)),
+        expect: () => [
+          isA<LoadingEpsodeState>(),
+          isA<ErrorLoadEpsodeState>().having(
+            (s) => s.errorStateType,
+            'errorStateType',
+            ErrorStateType.sessionExpired,
+          ),
+        ],
+      );
+
+      blocTest<HomeBloc, HomeState>(
+        'should emit [LoadingEpsodeState, ErrorLoadEpsodeState(genericError)] on generic failure',
+        build: () {
+          mockHomeRepository.epsodeResult = const Left(null);
+          return HomeBloc(homeRepository: mockHomeRepository);
+        },
+        act: (bloc) => bloc.add(const LoadEpsodeEvent(id: 28)),
+        expect: () => [
+          isA<LoadingEpsodeState>(),
+          isA<ErrorLoadEpsodeState>().having(
+            (s) => s.errorStateType,
+            'errorStateType',
+            ErrorStateType.genericError,
+          ),
+        ],
+      );
     });
+
+    // ── LoadCharactersEvent ─────────────────────────────────────────────────
 
     group('LoadCharactersEvent', () {
       blocTest<HomeBloc, HomeState>(
@@ -98,13 +150,64 @@ void main() {
           mockHomeRepository.charactersResult = const Right(tCharacters);
           return HomeBloc(homeRepository: mockHomeRepository);
         },
-        act: (bloc) => bloc.add(const LoadCharactersEvent(ids: [1])),
+        act: (bloc) => bloc.add(const LoadCharactersEvent(ids: [1, 2])),
         expect: () => [
           isA<LoadingCharactersState>(),
           isA<LoadedCharactersState>().having(
-            (state) => state.characters,
+            (s) => s.characters,
             'characters',
             tCharacters,
+          ),
+        ],
+      );
+
+      blocTest<HomeBloc, HomeState>(
+        'should emit [LoadingCharactersState, ErrorLoadCharactersState(timeout)] on TimeoutFailure',
+        build: () {
+          mockHomeRepository.charactersResult = Left(TimeoutFailure());
+          return HomeBloc(homeRepository: mockHomeRepository);
+        },
+        act: (bloc) => bloc.add(const LoadCharactersEvent(ids: [1])),
+        expect: () => [
+          isA<LoadingCharactersState>(),
+          isA<ErrorLoadCharactersState>().having(
+            (s) => s.errorStateType,
+            'errorStateType',
+            ErrorStateType.timeout,
+          ),
+        ],
+      );
+
+      blocTest<HomeBloc, HomeState>(
+        'should emit [LoadingCharactersState, ErrorLoadCharactersState(sessionExpired)] on SessionExpiredFailure',
+        build: () {
+          mockHomeRepository.charactersResult = Left(SessionExpiredFailure());
+          return HomeBloc(homeRepository: mockHomeRepository);
+        },
+        act: (bloc) => bloc.add(const LoadCharactersEvent(ids: [1])),
+        expect: () => [
+          isA<LoadingCharactersState>(),
+          isA<ErrorLoadCharactersState>().having(
+            (s) => s.errorStateType,
+            'errorStateType',
+            ErrorStateType.sessionExpired,
+          ),
+        ],
+      );
+
+      blocTest<HomeBloc, HomeState>(
+        'should emit [LoadingCharactersState, ErrorLoadCharactersState(genericError)] on generic failure',
+        build: () {
+          mockHomeRepository.charactersResult = const Left(null);
+          return HomeBloc(homeRepository: mockHomeRepository);
+        },
+        act: (bloc) => bloc.add(const LoadCharactersEvent(ids: [1])),
+        expect: () => [
+          isA<LoadingCharactersState>(),
+          isA<ErrorLoadCharactersState>().having(
+            (s) => s.errorStateType,
+            'errorStateType',
+            ErrorStateType.genericError,
           ),
         ],
       );

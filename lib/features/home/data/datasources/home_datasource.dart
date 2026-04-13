@@ -59,7 +59,7 @@ class HomeDatasource extends HomeRepository {
     required List<int> ids,
   }) async {
     final ApiEndpoints endpoint = ApiEndpoints.getCharacters;
-    final idsParam = ids.join(',');
+    final String idsParam = ids.join(',');
 
     final ApiResponse apiResponse = await _apiService(
       endpoint: '${endpoint.url}/$idsParam',
@@ -76,12 +76,15 @@ class HomeDatasource extends HomeRepository {
             ? result['data'] as List<dynamic>
             : [result];
 
-        final List<CharacterEntity> characters = rawList
-            .map((item) => CharacterModel.fromMap(
-                  map: item as Map<String, dynamic>,
-                ))
-            .toList()
-          ..sort((a, b) => a.name.compareTo(b.name));
+        final List<CharacterEntity> characters =
+            rawList
+                .map(
+                  (item) => CharacterModel.fromMap(
+                    map: item as Map<String, dynamic>,
+                  ),
+                )
+                .toList()
+              ..sort((a, b) => a.name.compareTo(b.name));
 
         return Right(characters);
       } catch (error) {
