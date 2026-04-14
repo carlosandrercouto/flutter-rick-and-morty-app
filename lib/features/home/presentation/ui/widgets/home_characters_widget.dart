@@ -78,7 +78,7 @@ class _HomeCharactersWidgetState extends State<HomeCharactersWidget> {
       physics: const NeverScrollableScrollPhysics(),
       itemCount: characters.length,
       itemBuilder: (context, index) =>
-          CharacterItemWidget(character: characters[index]),
+          CharacterItemWidget(character: characters[index], loadIndex: index),
     );
   }
 

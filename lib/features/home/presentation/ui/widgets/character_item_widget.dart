@@ -5,9 +5,17 @@ import '../../../domain/entities/character_entity.dart';
 
 /// Item de personagem exibido na listagem.
 class CharacterItemWidget extends StatelessWidget {
-  const CharacterItemWidget({super.key, required this.character});
+  const CharacterItemWidget({
+    super.key,
+    required this.character,
+    this.loadIndex = 0,
+  });
 
   final CharacterEntity character;
+
+  /// Índice na lista — repassado ao [CustomCacheNetworkImage] para escalonar
+  /// o início do download e evitar rate limiting (HTTP 429).
+  final int loadIndex;
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +36,10 @@ class CharacterItemWidget extends StatelessWidget {
             ),
             child: Hero(
               tag: 'character-${character.id}',
-              child: CustomCacheNetworkImage(imageUrl: character.imageUrl),
+              child: CustomCacheNetworkImage(
+                imageUrl: character.imageUrl,
+                loadIndex: loadIndex,
+              ),
             ),
           ),
           const SizedBox(width: 14),
